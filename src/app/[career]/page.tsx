@@ -5,6 +5,17 @@ import { getAllCareerSlugs, getCareerMeta, getCountrySlugs, getCountryOverview }
 import { CAREER_THEMES, COUNTRY_FLAGS, COUNTRY_LABELS } from "@/lib/themes";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { CountryCompare } from "@/components/CountryCompare";
+import type { Metadata } from "next";
+
+export async function generateMetadata({ params }: { params: Promise<{ career: string }> }): Promise<Metadata> {
+  const { career: careerSlug } = await params;
+  const careerData = getCareerMeta(careerSlug);
+  if (!careerData) return {};
+  return {
+    title: `${careerData.data.title} — PCM Career Map`,
+    description: careerData.data.description,
+  };
+}
 
 export async function generateStaticParams() {
   return getAllCareerSlugs().map((career) => ({ career }));

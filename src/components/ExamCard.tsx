@@ -16,6 +16,7 @@ export function ExamCard({ exam, accentColor }: ExamCardProps) {
     <div className="rounded-xl border border-[var(--border)] overflow-hidden bg-[var(--card)]">
       <button
         onClick={() => setExpanded(!expanded)}
+        aria-expanded={expanded}
         className="w-full flex items-center justify-between p-4 text-left cursor-pointer hover:bg-[var(--muted)]/50 transition-colors"
       >
         <div>

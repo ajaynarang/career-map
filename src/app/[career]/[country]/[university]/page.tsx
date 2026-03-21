@@ -4,6 +4,17 @@ import { CAREER_THEMES, COUNTRY_LABELS } from "@/lib/themes";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { UniSidebar } from "@/components/UniSidebar";
 import { MDXContent } from "@/components/MDXContent";
+import type { Metadata } from "next";
+
+export async function generateMetadata({ params }: { params: Promise<{ career: string; country: string; university: string }> }): Promise<Metadata> {
+  const { career: careerSlug, country: countrySlug, university: uniSlug } = await params;
+  const uniData = getUniversity(careerSlug, countrySlug, uniSlug);
+  if (!uniData) return {};
+  return {
+    title: `${uniData.data.name} — PCM Career Map`,
+    description: `${uniData.data.name} in ${uniData.data.location}. Fees: ${uniData.data.fees.inr}. ${uniData.data.ranking}. Admission guide for PCM students.`,
+  };
+}
 
 export async function generateStaticParams() {
   return generateAllUniversityParams();

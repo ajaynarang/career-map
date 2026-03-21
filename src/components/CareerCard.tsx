@@ -1,6 +1,17 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Cpu, Atom, TrendingUp, Building2, Shield, Palette, Ship, Plane } from "lucide-react";
 import { CAREER_THEMES } from "@/lib/themes";
+
+const CAREER_ICONS: Record<string, React.ComponentType<{ size?: number; className?: string; style?: React.CSSProperties }>> = {
+  engineering: Cpu,
+  science: Atom,
+  finance: TrendingUp,
+  architecture: Building2,
+  defence: Shield,
+  design: Palette,
+  "merchant-navy": Ship,
+  aviation: Plane,
+};
 
 interface CareerCardProps {
   slug: string;
@@ -10,6 +21,7 @@ interface CareerCardProps {
 
 export function CareerCard({ slug, title, description }: CareerCardProps) {
   const theme = CAREER_THEMES[slug];
+  const Icon = CAREER_ICONS[slug] || Cpu;
 
   return (
     <Link
@@ -18,10 +30,10 @@ export function CareerCard({ slug, title, description }: CareerCardProps) {
     >
       <div className="flex items-start justify-between mb-3">
         <div
-          className="w-10 h-10 rounded-lg flex items-center justify-center text-lg"
-          style={{ backgroundColor: (theme?.color || "#3B82F6") + "15", color: theme?.color || "#3B82F6" }}
+          className="w-10 h-10 rounded-lg flex items-center justify-center"
+          style={{ backgroundColor: (theme?.color || "#3B82F6") + "15" }}
         >
-          {slug === "engineering" ? "⚙️" : slug === "science" ? "🔬" : slug === "finance" ? "📈" : slug === "architecture" ? "🏛️" : slug === "defence" ? "🛡️" : slug === "design" ? "🎨" : slug === "merchant-navy" ? "🚢" : slug === "aviation" ? "✈️" : "📋"}
+          <Icon size={20} style={{ color: theme?.color || "#3B82F6" }} />
         </div>
         <ArrowRight
           size={16}

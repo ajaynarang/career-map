@@ -10,6 +10,18 @@ import { CAREER_THEMES, COUNTRY_FLAGS, COUNTRY_LABELS } from "@/lib/themes";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { ExamCard } from "@/components/ExamCard";
 import { UniCard } from "@/components/UniCard";
+import type { Metadata } from "next";
+
+export async function generateMetadata({ params }: { params: Promise<{ career: string; country: string }> }): Promise<Metadata> {
+  const { career: careerSlug, country: countrySlug } = await params;
+  const careerData = getCareerMeta(careerSlug);
+  if (!careerData) return {};
+  const countryLabel = COUNTRY_LABELS[countrySlug] || countrySlug;
+  return {
+    title: `${careerData.data.title} in ${countryLabel} — PCM Career Map`,
+    description: `Explore ${careerData.data.title.toLowerCase()} careers in ${countryLabel}. Exams, universities, fees, and admission guidance.`,
+  };
+}
 
 export async function generateStaticParams() {
   return generateAllCareerCountryParams();

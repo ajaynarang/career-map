@@ -23,9 +23,11 @@ export function CountryCompare({ careerSlug, overviews }: CountryCompareProps) {
       <table className="w-full text-sm border-collapse">
         <thead>
           <tr>
-            <th className="text-left p-3 text-[var(--muted-foreground)] font-medium border-b border-[var(--border)]" />
+            <th className="text-left p-3 text-[var(--muted-foreground)] font-medium border-b border-[var(--border)]">
+              <span className="sr-only">Metric</span>
+            </th>
             {overviews.map((o) => (
-              <th key={o.slug} className="text-center p-3 border-b border-[var(--border)]">
+              <th key={o.slug} scope="col" className="text-center p-3 border-b border-[var(--border)]">
                 <Link
                   href={`/${careerSlug}/${o.slug}`}
                   className="text-[var(--foreground)] font-semibold no-underline hover:underline"

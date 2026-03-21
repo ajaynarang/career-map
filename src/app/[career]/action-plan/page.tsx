@@ -2,6 +2,17 @@ import { notFound } from "next/navigation";
 import { getAllCareerSlugs, getCareerMeta, getActionPlan } from "@/lib/content";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { MDXContent } from "@/components/MDXContent";
+import type { Metadata } from "next";
+
+export async function generateMetadata({ params }: { params: Promise<{ career: string }> }): Promise<Metadata> {
+  const { career: careerSlug } = await params;
+  const careerData = getCareerMeta(careerSlug);
+  if (!careerData) return {};
+  return {
+    title: `${careerData.data.title} Action Plan — PCM Career Map`,
+    description: `Step-by-step preparation roadmap for ${careerData.data.title.toLowerCase()} from Class 9 to 12.`,
+  };
+}
 
 export async function generateStaticParams() {
   return getAllCareerSlugs().map((career) => ({ career }));
