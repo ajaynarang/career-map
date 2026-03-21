@@ -26,7 +26,7 @@ export function CareerCard({ slug, title, description }: CareerCardProps) {
   return (
     <Link
       href={`/${slug}`}
-      className="group block p-6 rounded-xl border border-[var(--border)] bg-[var(--card)] hover:border-[var(--muted-foreground)]/30 transition-all duration-200 no-underline"
+      className="group block p-6 rounded-xl border border-[var(--border)] bg-[var(--card)] hover:border-[var(--muted-foreground)]/30 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 no-underline"
     >
       <div className="flex items-start justify-between mb-3">
         <div
