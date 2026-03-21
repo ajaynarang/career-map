@@ -195,12 +195,15 @@ export function MindMap({ careers }: MindMapProps) {
         minZoom={0.4}
         maxZoom={1.5}
         proOptions={{ hideAttribution: true }}
-        panOnDrag
+        panOnDrag={false}
         zoomOnScroll={false}
-        panOnScroll
+        panOnScroll={false}
+        zoomOnPinch={false}
+        zoomOnDoubleClick={false}
         nodesDraggable={false}
         nodesConnectable={false}
         elementsSelectable={false}
+        preventScrolling={false}
       >
         <Background
           variant={BackgroundVariant.Dots}
