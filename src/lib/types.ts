@@ -1,54 +1,96 @@
-// ─── Core Data Types ───
-// Extend these as you add more careers, exams, universities
+// ─── Career Types ───
 
-export type CareerThemeKey = "eng" | "sci" | "fin" | "des" | "def" | "eco";
-
-export interface ThemeColors {
-  accent: string;
-  bg: string;
-  card: string;
-  ring: string;
-  text: string;
-  dim: string;
+export interface CareerMeta {
+  title: string;
+  slug: string;
+  icon: string;
+  description: string;
+  color: string;
+  whyChoose: string;
+  countries: string[];
+  exams: Record<string, string[]>;
 }
 
-export interface Exam {
-  name: string;
-  when: string;
-  reg: string;
-  elig: string;
-  format: string;
-  syllabus: string;
-  tip: string;
-  prepStart: string;
+// ─── Country Overview Types ───
+
+export interface CountryOverview {
+  country: string;
+  countryCode: string;
+  career: string;
+  overview: string;
+  budget: {
+    tuition: string;
+    living: string;
+    total4yr: string;
+    totalInr: string;
+  };
+  language: string;
+  workWhileStudying: string;
+  postStudyVisa: string;
+  safety: string;
 }
 
-export interface University {
+// ─── University Types ───
+
+export interface UniversityMeta {
   name: string;
+  slug: string;
   location: string;
   ranking: string;
-  fees: string;
-  pkg?: string;
-  recruiters?: string;
-  branches?: string;
-  howToGetIn: string;
-  curriculum?: string;
-  campus?: string;
-  scholarships?: string;
-  website?: string;
+  fees: {
+    tuition: string;
+    total: string;
+    inr: string;
+  };
+  placements: {
+    average: string;
+    inr: string;
+  };
+  topRecruiters: string[];
+  programs: string[];
+  acceptance: string;
+  requirements: {
+    exam: string;
+    grades: string;
+    extras: string;
+  };
+  scholarships: string[];
+  website: string;
+  applyLink: string;
 }
 
-export interface GeoPath {
-  label: string;
-  id: string;
-  overview: string;
-  exams: Exam[];
-  universities?: University[];
+// ─── Exam Types ───
+
+export interface ExamMeta {
+  name: string;
+  slug: string;
+  when: string;
+  registration: {
+    website: string;
+    fee: string;
+    deadline: string;
+  };
+  eligibility: string;
+  format: {
+    questions: number;
+    marks: number;
+    duration: string;
+    details: string;
+  };
+  syllabus: string;
+  careers: string[];
+}
+
+// ─── Action Plan Types ───
+
+export interface ActionPlanItem {
+  text: string;
+  countries: string[];
 }
 
 export interface ActionPhase {
   phase: string;
-  items: string[];
+  items: ActionPlanItem[];
 }
 
 export interface ActionPlan {
@@ -56,15 +98,9 @@ export interface ActionPlan {
   phases: ActionPhase[];
 }
 
-export interface CareerPath {
-  id: CareerThemeKey;
-  title: string;
-  icon: string;
-  theme: CareerThemeKey;
-  desc: string;
-  whyChoose: string;
-  paths: Record<string, GeoPath>;
-  actionPlan: ActionPlan;
-}
+// ─── Theme ───
 
-export type CareerDataMap = Record<string, CareerPath>;
+export interface CareerTheme {
+  color: string;
+  icon: string;
+}
