@@ -1,5 +1,5 @@
 # dependencies
-node_modules/
+node_modules
 
 # next.js
 .next/
@@ -24,3 +24,5 @@ next-env.d.ts
 
 # vercel
 .vercel
+node_modules
+.claude/
