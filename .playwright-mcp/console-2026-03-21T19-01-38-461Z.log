@@ -1,0 +1,323 @@
+[     651ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/favicon.ico:0
+[  225086ms] [ERROR] ./src/app/page.tsx:10:1
+Module not found: Can't resolve '@/components/JourneyWrapper'
+   8 | } from "@/lib/content";
+   9 | import { COUNTRY_FLAGS, COUNTRY_LABELS } from "@/lib/themes";
+> 10 | import { JourneyWrapper } from "@/components/JourneyWrapper";
+     | ^
+  11 |
+  12 | export default function Home() {
+  13 |   const careers = getAllCareerMetas().map((c) => ({
+
+https://nextjs.org/docs/messages/module-not-found @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[  229165ms] [ERROR] ./src/app/page.tsx:10:1
+Module not found: Can't resolve '@/components/JourneyWrapper'
+   8 | } from "@/lib/content";
+   9 | import { COUNTRY_FLAGS, COUNTRY_LABELS } from "@/lib/themes";
+> 10 | import { JourneyWrapper } from "@/components/JourneyWrapper";
+     | ^
+  11 |
+  12 | export default function Home() {
+  13 |   const careers = getAllCareerMetas().map((c) => ({
+
+https://nextjs.org/docs/messages/module-not-found @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[  229324ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/?_rsc=fsnpp:0
+[  229627ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/?_rsc=fsnpp:0
+[  229672ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/?_rsc=fsnpp:0
+[  229710ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/?_rsc=fsnpp:0
+[  229830ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/:0
+[  230169ms] Error: Module not found: Can't resolve '@/components/JourneyWrapper'
+   8 | } from "@/lib/content";
+   9 | import { COUNTRY_FLAGS, COUNTRY_LABELS } from "@/lib/themes";
+> 10 | import { JourneyWrapper } from "@/components/JourneyWrapper";
+     | ^
+  11 |
+  12 | export default function Home() {
+  13 |   const careers = getAllCareerMetas().map((c) => ({
+
+https://nextjs.org/docs/messages/module-not-found
+
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at getNotFoundError (file:///Users/ajay-admin/code/career-map/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/parseNotFoundError.js:140:16)
+    at async getModuleBuildError (file:///Users/ajay-admin/code/career-map/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/webpackModuleError.js:103:27)
+    at async (file:///Users/ajay-admin/code/career-map/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/index.js:29:49)
+    at async (file:///Users/ajay-admin/code/career-map/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/index.js:27:21)
+[  230170ms] [ERROR] ./src/app/page.tsx:10:1
+Module not found: Can't resolve '@/components/JourneyWrapper'
+   8 | } from "@/lib/content";
+   9 | import { COUNTRY_FLAGS, COUNTRY_LABELS } from "@/lib/themes";
+> 10 | import { JourneyWrapper } from "@/components/JourneyWrapper";
+     | ^
+  11 |
+  12 | export default function Home() {
+  13 |   const careers = getAllCareerMetas().map((c) => ({
+
+https://nextjs.org/docs/messages/module-not-found @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[  230740ms] [ERROR] ./src/app/page.tsx:10:1
+Module not found: Can't resolve '@/components/JourneyWrapper'
+   8 | } from "@/lib/content";
+   9 | import { COUNTRY_FLAGS, COUNTRY_LABELS } from "@/lib/themes";
+> 10 | import { JourneyWrapper } from "@/components/JourneyWrapper";
+     | ^
+  11 |
+  12 | export default function Home() {
+  13 |   const careers = getAllCareerMetas().map((c) => ({
+
+https://nextjs.org/docs/messages/module-not-found @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[  233591ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/_next/static/webpack/801e867b0e6efbf4.webpack.hot-update.json:0
+[  233592ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/client/dev/hot-reloader/pages/hot-reloader-pages.js:347
+[  234426ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/_next/static/webpack/801e867b0e6efbf4.webpack.hot-update.json:0
+[  234426ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/client/dev/hot-reloader/pages/hot-reloader-pages.js:347
+[  235699ms] [ERROR] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <HTTPAccessFallbackBoundary notFound={<SegmentViewNode>} forbidden={undefined} unauthorized={undefined}>
+      <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<SegmentViewNode>} forbidden={undefined} ...>
+        <RedirectBoundary>
+          <RedirectErrorBoundary router={{...}}>
+            <InnerLayoutRouter url="/" tree={[...]} cacheNode={{lazyData:null, ...}} segmentPath={[...]}>
+              <SegmentViewNode type="page" pagePath="page.tsx">
+                <SegmentTrieNode>
+                <Home>
+                  <JourneyWrapper careers={[...]} countriesByCareer={{...}} examsByCareerCountry={{...}} ...>
+                    <Journey careers={[...]} getCountries={function getCountries} getExams={function getExams} ...>
+                      <div className="min-h-screen">
+                        <ProgressBar>
+                        <section className="min-h-[70v...">
+                          <div className="absolute i...">
+                            <motion.div className="absolute w..." style={{left:"80.5...", ...}} animate={{y:[...], ...}} ...>
+                              <div
+                                className="absolute w-1 h-1 rounded-full bg-blue-500/20"
+                                style={{
++                                 left: "80.52538863938985%"
+-                                 left: "57.7476%"
++                                 top: "53.37808926531478%"
+-                                 top: "17.3131%"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div className="absolute w..." style={{left:"45.9...", ...}} animate={{y:[...], ...}} ...>
+                              <div
+                                className="absolute w-1 h-1 rounded-full bg-blue-500/20"
+                                style={{
++                                 left: "45.902535859191296%"
+-                                 left: "35.9383%"
++                                 top: "24.357816877985528%"
+-                                 top: "50.2287%"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div className="absolute w..." style={{left:"64.3...", ...}} animate={{y:[...], ...}} ...>
+                              <div
+                                className="absolute w-1 h-1 rounded-full bg-blue-500/20"
+                                style={{
++                                 left: "64.37310313920472%"
+-                                 left: "90.6421%"
++                                 top: "14.532211399657669%"
+-                                 top: "72.1805%"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div className="absolute w..." style={{left:"80.7...", ...}} animate={{y:[...], ...}} ...>
+                              <div
+                                className="absolute w-1 h-1 rounded-full bg-blue-500/20"
+                                style={{
++                                 left: "80.79341343604406%"
+-                                 left: "81.1695%"
++                                 top: "37.11105291094681%"
+-                                 top: "34.4902%"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div className="absolute w..." style={{left:"62.1...", ...}} animate={{y:[...], ...}} ...>
+                              <div
+                                className="absolute w-1 h-1 rounded-full bg-blue-500/20"
+                                style={{
++                                 left: "62.17777590736103%"
+-                                 left: "12.7675%"
++                                 top: "14.258602879214887%"
+-                                 top: "81.0284%"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div className="absolute w..." style={{left:"62.3...", ...}} animate={{y:[...], ...}} ...>
+                              <div
+                                className="absolute w-1 h-1 rounded-full bg-blue-500/20"
+                                style={{
++                                 left: "62.394035360110635%"
+-                                 left: "53.8248%"
++                                 top: "80.78026302642527%"
+-                                 top: "96.9466%"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div className="absolute w..." style={{left:"41.3...", ...}} animate={{y:[...], ...}} ...>
+                              <div
+                                className="absolute w-1 h-1 rounded-full bg-blue-500/20"
+                                style={{
++                                 left: "41.32160951513284%"
+-                                 left: "91.2018%"
++                                 top: "21.15198265622934%"
+-                                 top: "5.47721%"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div className="absolute w..." style={{left:"17.7...", ...}} animate={{y:[...], ...}} ...>
+                              <div
+                                className="absolute w-1 h-1 rounded-full bg-blue-500/20"
+                                style={{
++                                 left: "17.798430529682218%"
+-                                 left: "83.1172%"
++                                 top: "7.844780484722024%"
+-                                 top: "31.6357%"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div className="absolute w..." style={{left:"13.0...", ...}} animate={{y:[...], ...}} ...>
+                              <div
+                                className="absolute w-1 h-1 rounded-full bg-blue-500/20"
+                                style={{
++                                 left: "13.069115326390722%"
+-                                 left: "66.4466%"
++                                 top: "17.421833384848263%"
+-                                 top: "52.889%"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div className="absolute w..." style={{left:"50.0...", ...}} animate={{y:[...], ...}} ...>
+                              <div
+                                className="absolute w-1 h-1 rounded-full bg-blue-500/20"
+                                style={{
++                                 left: "50.09135723990924%"
+-                                 left: "53.9562%"
++                                 top: "67.23775328565601%"
+-                                 top: "15.1934%"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div className="absolute w..." style={{left:"6.99...", ...}} animate={{y:[...], ...}} ...>
+                              <div
+                                className="absolute w-1 h-1 rounded-full bg-blue-500/20"
+                                style={{
++                                 left: "6.996113218429711%"
+-                                 left: "18.3803%"
++                                 top: "49.87558970002631%"
+-                                 top: "78.6438%"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div className="absolute w..." style={{left:"35.5...", ...}} animate={{y:[...], ...}} ...>
+                              <div
+                                className="absolute w-1 h-1 rounded-full bg-blue-500/20"
+                                style={{
++                                 left: "35.557305730357044%"
+-                                 left: "65.5516%"
++                                 top: "57.17699505355365%"
+-                                 top: "47.9663%"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div className="absolute w..." style={{left:"66.7...", ...}} animate={{y:[...], ...}} ...>
+                              <div
+                                className="absolute w-1 h-1 rounded-full bg-blue-500/20"
+                                style={{
++                                 left: "66.77119684916114%"
+-                                 left: "69.3497%"
++                                 top: "88.31024628943698%"
+-                                 top: "6.98329%"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div className="absolute w..." style={{left:"8.06...", ...}} animate={{y:[...], ...}} ...>
+                              <div
+                                className="absolute w-1 h-1 rounded-full bg-blue-500/20"
+                                style={{
++                                 left: "8.060197795251744%"
+-                                 left: "0.372305%"
++                                 top: "52.58826247194598%"
+-                                 top: "35.4289%"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div className="absolute w..." style={{left:"87.9...", ...}} animate={{y:[...], ...}} ...>
+                              <div
+                                className="absolute w-1 h-1 rounded-full bg-blue-500/20"
+                                style={{
++                                 left: "87.94517899319555%"
+-                                 left: "82.0942%"
++                                 top: "91.37964533230956%"
+-                                 top: "13.5441%"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div className="absolute w..." style={{left:"65.5...", ...}} animate={{y:[...], ...}} ...>
+                              <div
+                                className="absolute w-1 h-1 rounded-full bg-blue-500/20"
+                                style={{
++                                 left: "65.52815504172627%"
+-                                 left: "66.083%"
++                                 top: "77.13972054996066%"
+-                                 top: "31.4925%"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div className="absolute w..." style={{left:"81.5...", ...}} animate={{y:[...], ...}} ...>
+                              <div
+                                className="absolute w-1 h-1 rounded-full bg-blue-500/20"
+                                style={{
++                                 left: "81.59906800206699%"
+-                                 left: "76.5577%"
++                                 top: "27.52425318130368%"
+-                                 top: "20.082%"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div className="absolute w..." style={{left:"82.4...", ...}} animate={{y:[...], ...}} ...>
+                              <div
+                                className="absolute w-1 h-1 rounded-full bg-blue-500/20"
+                                style={{
++                                 left: "82.40516440198546%"
+-                                 left: "72.5777%"
++                                 top: "10.85184590613495%"
+-                                 top: "8.6295%"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div className="absolute w..." style={{left:"67.0...", ...}} animate={{y:[...], ...}} ...>
+                              <div
+                                className="absolute w-1 h-1 rounded-full bg-blue-500/20"
+                                style={{
++                                 left: "67.01556329956787%"
+-                                 left: "86.2423%"
++                                 top: "13.648220603621187%"
+-                                 top: "49.0405%"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div className="absolute w..." style={{left:"0.80...", ...}} animate={{y:[...], ...}} ...>
+                              <div
+                                className="absolute w-1 h-1 rounded-full bg-blue-500/20"
+                                style={{
++                                 left: "0.8015247508866064%"
+-                                 left: "25.0229%"
++                                 top: "79.28060152025466%"
+-                                 top: "8.38073%"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                          ...
+                        ...
+              ...
+            ...
+ @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[  239865ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr' failed:  @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/use-websocket.js:41

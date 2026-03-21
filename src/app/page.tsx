@@ -3,10 +3,11 @@ import {
   getAllCareerSlugs,
   getCountrySlugs,
   getCountryOverview,
+  getExamsForCareerCountry,
   getAllUniversityMetas,
 } from "@/lib/content";
 import { COUNTRY_FLAGS, COUNTRY_LABELS } from "@/lib/themes";
-import { MindMapExplorerWrapper } from "@/components/MindMapExplorerWrapper";
+import { JourneyWrapper } from "@/components/JourneyWrapper";
 
 export default function Home() {
   const careers = getAllCareerMetas().map((c) => ({
@@ -17,6 +18,7 @@ export default function Home() {
   }));
 
   const countriesByCareer: Record<string, { slug: string; label: string; flag: string; budget: { totalInr: string }; language: string; postStudyVisa: string }[]> = {};
+  const examsByCareerCountry: Record<string, { slug: string; name: string; when: string; fee: string; eligibility: string; format: string; website: string }[]> = {};
   const unisByCareerCountry: Record<string, { slug: string; name: string; location: string; ranking: string; feesInr: string; salary: string; acceptance: string; programs: string[]; recruiters: string[]; scholarships: string[]; website: string; applyLink: string }[]> = {};
 
   for (const careerSlug of getAllCareerSlugs()) {
@@ -37,8 +39,20 @@ export default function Home() {
       .filter((c): c is NonNullable<typeof c> => c !== null);
 
     for (const countrySlug of countrySlugs) {
+      const key = `${careerSlug}/${countrySlug}`;
+      const exams = getExamsForCareerCountry(careerSlug, countrySlug);
+      examsByCareerCountry[key] = exams.map((e) => ({
+        slug: e.data.slug,
+        name: e.data.name,
+        when: e.data.when,
+        fee: e.data.registration.fee,
+        eligibility: e.data.eligibility,
+        format: e.data.format.details || `${e.data.format.questions} Qs, ${e.data.format.marks} marks, ${e.data.format.duration}`,
+        website: e.data.registration.website,
+      }));
+
       const unis = getAllUniversityMetas(careerSlug, countrySlug);
-      unisByCareerCountry[`${careerSlug}/${countrySlug}`] = unis.map((u) => ({
+      unisByCareerCountry[key] = unis.map((u) => ({
         slug: u.data.slug,
         name: u.data.name,
         location: u.data.location,
@@ -56,31 +70,11 @@ export default function Home() {
   }
 
   return (
-    <div
-      className="w-full"
-      style={{
-        height: "calc(100vh - 56px)",
-        background: "linear-gradient(180deg, #08090c 0%, #0d0f14 50%, #08090c 100%)",
-      }}
-    >
-      {/* Title overlay */}
-      <div className="absolute top-16 left-0 right-0 z-10 text-center pointer-events-none pt-4">
-        <p className="text-[10px] font-mono text-zinc-600 tracking-[4px] uppercase mb-1">
-          Career guidance system
-        </p>
-        <h1 className="text-2xl font-bold text-white/90 mb-1">
-          PCM Career Map
-        </h1>
-        <p className="text-xs text-zinc-500">
-          Click a career to explore → countries → universities
-        </p>
-      </div>
-
-      <MindMapExplorerWrapper
-        careers={careers}
-        countriesByCareer={countriesByCareer}
-        unisByCareerCountry={unisByCareerCountry}
-      />
-    </div>
+    <JourneyWrapper
+      careers={careers}
+      countriesByCareer={countriesByCareer}
+      examsByCareerCountry={examsByCareerCountry}
+      unisByCareerCountry={unisByCareerCountry}
+    />
   );
 }
