@@ -5,6 +5,7 @@ import {
   getCountryOverview,
   getExamsForCareerCountry,
   getAllUniversityMetas,
+  getActionPlan,
 } from "@/lib/content";
 import { COUNTRY_FLAGS, COUNTRY_LABELS } from "@/lib/themes";
 import { JourneyWrapper } from "@/components/JourneyWrapper";
@@ -69,12 +70,20 @@ export default function Home() {
     }
   }
 
+  // Action plan content per career
+  const actionPlansByCareer: Record<string, string> = {};
+  for (const careerSlug of getAllCareerSlugs()) {
+    const plan = getActionPlan(careerSlug);
+    if (plan) actionPlansByCareer[careerSlug] = plan.content;
+  }
+
   return (
     <JourneyWrapper
       careers={careers}
       countriesByCareer={countriesByCareer}
       examsByCareerCountry={examsByCareerCountry}
       unisByCareerCountry={unisByCareerCountry}
+      actionPlansByCareer={actionPlansByCareer}
     />
   );
 }

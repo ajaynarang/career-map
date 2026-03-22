@@ -8,6 +8,11 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
+import dynamic from "next/dynamic";
+
+const ActionPlanMDX = dynamic(() => import("./ActionPlanRenderer").then(m => ({ default: m.ActionPlanRenderer })), {
+  loading: () => <div className="text-sm text-[var(--muted-foreground)]">Loading action plan...</div>,
+});
 
 // ─── Types ───
 
@@ -162,9 +167,10 @@ export interface JourneyProps {
   getCountries: (slug: string) => CountryData[];
   getExams: (careerSlug: string, countrySlug: string) => ExamData[];
   getUnis: (careerSlug: string, countrySlug: string) => UniData[];
+  actionPlans: Record<string, string>;
 }
 
-export function Journey({ careers, getCountries, getExams, getUnis }: JourneyProps) {
+export function Journey({ careers, getCountries, getExams, getUnis, actionPlans }: JourneyProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeCareer, setActiveCareer] = useState<string | null>(null);
   const [activeCountry, setActiveCountry] = useState<string | null>(null);
@@ -755,7 +761,7 @@ export function Journey({ careers, getCountries, getExams, getUnis }: JourneyPro
         })()}
       </AnimatePresence>
 
-      {/* Action Plan overlay — loads page in iframe */}
+      {/* Action Plan overlay — renders MDX content inline */}
       <AnimatePresence>
         {actionPlanCareer && (
           <motion.div
@@ -763,16 +769,23 @@ export function Journey({ careers, getCountries, getExams, getUnis }: JourneyPro
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed inset-0 z-50 bg-[var(--background)]"
+            className="fixed inset-0 z-50 bg-[var(--background)] overflow-y-auto"
           >
             <button onClick={() => setActionPlanCareer(null)} className="fixed top-4 right-4 z-50 w-11 h-11 rounded-full bg-[var(--muted)] border border-[var(--border)] flex items-center justify-center cursor-pointer hover:bg-[var(--border)] transition-colors shadow-lg">
               <X size={18} className="text-[var(--foreground)]" />
             </button>
-            <iframe
-              src={`/${actionPlanCareer}/action-plan`}
-              className="w-full h-full border-none"
-              title="Action Plan"
-            />
+            <div className="max-w-2xl mx-auto px-6 py-14">
+              <div className="text-[9px] font-mono uppercase tracking-[4px] mb-2" style={{ color: COLORS[actionPlanCareer] || "#3B82F6" }}>
+                {careers.find(c => c.slug === actionPlanCareer)?.title}
+              </div>
+              <h1 className="text-2xl font-bold text-[var(--foreground)] mb-2">Your Action Plan</h1>
+              <p className="text-sm text-[var(--muted-foreground)] mb-8">Step-by-step preparation roadmap from Class 9 to Class 12</p>
+              {actionPlans[actionPlanCareer] ? (
+                <ActionPlanMDX content={actionPlans[actionPlanCareer]} />
+              ) : (
+                <p className="text-sm text-[var(--muted-foreground)]">No action plan available yet.</p>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
