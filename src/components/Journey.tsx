@@ -47,9 +47,9 @@ function Bubble({ size, color, onClick, children, delay = 0, pulse, active }: {
         <motion.div className="absolute inset-0 rounded-full" animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0, 0.3] }} transition={{ duration: 3, repeat: Infinity }} style={{ background: `radial-gradient(circle, ${color}30 0%, transparent 70%)` }} />
       )}
       <div className="absolute inset-0 rounded-full" style={{
-        background: `radial-gradient(circle at 32% 28%, rgba(255,255,255,0.4) 0%, ${color}80 25%, ${color}45 55%, ${color}20 80%, rgba(0,0,0,0.1) 100%)`,
-        border: `2px solid ${active ? `${color}` : `${color}60`}`,
-        boxShadow: `0 0 ${size * 0.35}px ${color}${active ? "50" : "25"}, inset 0 -${size * 0.12}px ${size * 0.25}px rgba(0,0,0,0.25), inset 0 ${size * 0.04}px ${size * 0.08}px rgba(255,255,255,0.2)`,
+        background: `radial-gradient(circle at 32% 28%, rgba(255,255,255,0.35) 0%, ${color}99 22%, ${color}70 50%, ${color}40 75%, ${color}20 100%)`,
+        border: `2.5px solid ${active ? color : `${color}80`}`,
+        boxShadow: `0 0 ${size * 0.4}px ${color}${active ? "60" : "30"}, 0 4px 12px rgba(0,0,0,0.15), inset 0 -${size * 0.12}px ${size * 0.25}px rgba(0,0,0,0.3), inset 0 ${size * 0.04}px ${size * 0.08}px rgba(255,255,255,0.25)`,
       }} />
       <div className="absolute rounded-full bg-white/35 blur-[1px]" style={{ top: "10%", left: "15%", width: "38%", height: "22%" }} />
       <div className="relative z-10 flex flex-col items-center justify-center">{children}</div>
@@ -333,7 +333,7 @@ export function Journey({ careers, getCountries, getExams, getUnis }: JourneyPro
                     <Tooltip>
                       <div className="text-xs font-bold text-[var(--foreground)] mb-1">{c.title}</div>
                       <div className="text-[10px] text-[var(--muted-foreground)] leading-relaxed mb-2">{c.description}</div>
-                      <div className="text-[10px] leading-relaxed pt-2 border-t border-[var(--border)]" style={{ color: COLORS[c.slug] }}>{c.whyChoose.substring(0, 120)}...</div>
+                      <div className="text-[10px] leading-relaxed pt-2 border-t border-[var(--border)]" style={{ color: COLORS[c.slug] }}>{c.whyChoose}</div>
                     </Tooltip>
                   </motion.div>
                 );
