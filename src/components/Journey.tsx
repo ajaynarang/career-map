@@ -110,8 +110,43 @@ const ROW_UNI = 55;
 const SZ_ROOT = 90;
 const SZ_CAREER = 68;
 const SZ_COUNTRY = 58;
-const SZ_UNI = 46;
+const SZ_UNI = 44;
 const SZ_EXAM = 42;
+const SZ_TIER = 52;
+
+// ─── Tier classification ───
+
+type Tier = "dream" | "target" | "safety";
+
+const TIER_LABELS: Record<Tier, { emoji: string; label: string; color: string }> = {
+  dream: { emoji: "🏆", label: "Dream", color: "#F59E0B" },
+  target: { emoji: "🎯", label: "Target", color: "#3B82F6" },
+  safety: { emoji: "✅", label: "Safety", color: "#10B981" },
+};
+
+function classifyTier(uni: UniData): Tier {
+  const acc = uni.acceptance.toLowerCase();
+  // Check for very competitive indicators
+  if (acc.includes("< 1") || acc.includes("<1") || acc.includes("top 100") || acc.includes("top 200") || acc.includes("top 500") ||
+      acc.includes("3.5%") || acc.includes("4%") || acc.includes("5%") || acc.includes("6%") || acc.includes("7%") ||
+      acc.includes("#1") || acc.includes("#2") || acc.includes("#3") ||
+      uni.ranking.toLowerCase().includes("#1") || uni.ranking.toLowerCase().includes("#2")) {
+    return "dream";
+  }
+  if (acc.includes("10") || acc.includes("15") || acc.includes("20") || acc.includes("99") || acc.includes("98") ||
+      acc.includes("top 1") || acc.includes("top 2") || acc.includes("top 5") ||
+      uni.ranking.toLowerCase().includes("#3") || uni.ranking.toLowerCase().includes("#4") || uni.ranking.toLowerCase().includes("#5") ||
+      uni.ranking.toLowerCase().includes("top 3") || uni.ranking.toLowerCase().includes("top 5") || uni.ranking.toLowerCase().includes("top 10")) {
+    return "target";
+  }
+  return "safety";
+}
+
+function groupByTier(unis: UniData[]): Record<Tier, UniData[]> {
+  const groups: Record<Tier, UniData[]> = { dream: [], target: [], safety: [] };
+  unis.forEach(u => groups[classifyTier(u)].push(u));
+  return groups;
+}
 
 // ─── Main ───
 
@@ -126,6 +161,7 @@ export function Journey({ careers, getCountries, getExams, getUnis }: JourneyPro
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeCareer, setActiveCareer] = useState<string | null>(null);
   const [activeCountry, setActiveCountry] = useState<string | null>(null);
+  const [activeTier, setActiveTier] = useState<Tier | null>(null);
   const [sheetData, setSheetData] = useState<{ uni: UniData; career: string; country: string } | null>(null);
   const [examDetail, setExamDetail] = useState<ExamData | null>(null);
   const [fullProfile, setFullProfile] = useState<{ uni: UniData; career: string; country: string } | null>(null);
@@ -155,7 +191,8 @@ export function Journey({ careers, getCountries, getExams, getUnis }: JourneyPro
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        if (activeCountry) setActiveCountry(null);
+        if (activeTier) setActiveTier(null);
+        else if (activeCountry) setActiveCountry(null);
         else if (activeCareer) setActiveCareer(null);
       }
     };
@@ -166,8 +203,9 @@ export function Journey({ careers, getCountries, getExams, getUnis }: JourneyPro
   // Auto-pan
   useEffect(() => {
     if (!activeCareer) setPan({ x: 0, y: 0 });
-    else if (!activeCountry) setPan(p => ({ x: Math.min(p.x, -100), y: p.y }));
-    else setPan(p => ({ x: Math.min(p.x, -280), y: p.y }));
+    else if (!activeCountry) { setPan(p => ({ x: Math.min(p.x, -100), y: p.y })); setActiveTier(null); }
+    else if (!activeTier) setPan(p => ({ x: Math.min(p.x, -280), y: p.y }));
+    else setPan(p => ({ x: Math.min(p.x, -440), y: p.y }));
   }, [activeCareer, activeCountry]);
 
   // ─── Positions ───
@@ -190,17 +228,28 @@ export function Journey({ careers, getCountries, getExams, getUnis }: JourneyPro
   const countryY0 = cAnchorY - totalCoH / 2;
   const countryPos = countries.map((_, i) => ({ x: countryX, y: countryY0 + i * ROW_COUNTRY }));
 
-  // Exams + Unis (side by side — exams on top half, unis on bottom half)
+  // Exams + Tiers
   const coi = countries.findIndex(c => c.slug === activeCountry);
   const coAnchorY = coi >= 0 ? countryPos[coi].y : cAnchorY;
   const detailX = countryX + COL;
+  const uniDetailX = detailX + COL;
 
-  // Exams above, unis below
-  const examY0 = coAnchorY - (exams.length * ROW_UNI) / 2 - 20;
+  // Exams (top section)
+  const examY0 = coAnchorY - (exams.length * (ROW_UNI - 5)) / 2 - 40;
   const examPos = exams.map((_, i) => ({ x: detailX, y: examY0 + i * (ROW_UNI - 5) }));
 
-  const uniY0 = (examPos.length > 0 ? examPos[examPos.length - 1].y + ROW_UNI + 20 : coAnchorY - (unis.length - 1) * ROW_UNI / 2);
-  const uniPos = unis.map((_, i) => ({ x: detailX, y: uniY0 + i * ROW_UNI }));
+  // Tier bubbles (below exams)
+  const tiers = groupByTier(unis);
+  const activeTiers = (["dream", "target", "safety"] as Tier[]).filter(t => tiers[t].length > 0);
+  const tierY0 = (examPos.length > 0 ? examPos[examPos.length - 1].y + 60 : coAnchorY - (activeTiers.length - 1) * ROW_COUNTRY / 2);
+  const tierPos = activeTiers.map((_, i) => ({ x: detailX, y: tierY0 + i * ROW_COUNTRY }));
+
+  // Uni bubbles within active tier
+  const activeTierUnis = activeTier ? tiers[activeTier] : [];
+  const activeTierIdx = activeTiers.indexOf(activeTier!);
+  const tierAnchorY = activeTierIdx >= 0 ? tierPos[activeTierIdx].y : tierY0;
+  const uniY0 = tierAnchorY - (activeTierUnis.length - 1) * ROW_UNI / 2;
+  const uniPos = activeTierUnis.map((_, i) => ({ x: uniDetailX, y: uniY0 + i * ROW_UNI }));
 
   const shortName = (name: string) => name.replace(/University of |University |Institute of Technology |Institute of |Indian |National |School of /g, "").substring(0, 9);
 
@@ -236,9 +285,13 @@ export function Journey({ careers, getCountries, getExams, getUnis }: JourneyPro
               {activeCountry && exams.map((e, i) => (
                 <Line key={`e-${e.slug}`} x1={countryX + SZ_COUNTRY / 2} y1={coAnchorY} x2={examPos[i].x - SZ_EXAM / 2} y2={examPos[i].y} color="#F59E0B" />
               ))}
-              {/* Country → Unis */}
-              {activeCountry && unis.map((u, i) => (
-                <Line key={`u-${u.slug}`} x1={countryX + SZ_COUNTRY / 2} y1={coAnchorY} x2={uniPos[i].x - SZ_UNI / 2} y2={uniPos[i].y} color={color} />
+              {/* Country → Tiers */}
+              {activeCountry && activeTiers.map((t, i) => (
+                <Line key={`t-${t}`} x1={countryX + SZ_COUNTRY / 2} y1={coAnchorY} x2={tierPos[i].x - SZ_TIER / 2} y2={tierPos[i].y} color={TIER_LABELS[t].color} />
+              ))}
+              {/* Tier → Unis */}
+              {activeTier && activeTierUnis.map((u, i) => (
+                <Line key={`u-${u.slug}`} x1={detailX + SZ_TIER / 2} y1={tierAnchorY} x2={uniPos[i].x - SZ_UNI / 2} y2={uniPos[i].y} color={color} />
               ))}
             </AnimatePresence>
           </svg>
@@ -331,9 +384,35 @@ export function Journey({ careers, getCountries, getExams, getUnis }: JourneyPro
               ))}
             </AnimatePresence>
 
-            {/* Universities */}
+            {/* Tier bubbles (Dream / Target / Safety) */}
             <AnimatePresence>
-              {activeCountry && unis.map((u, i) => (
+              {activeCountry && activeTiers.map((t, i) => {
+                const tier = TIER_LABELS[t];
+                const count = tiers[t].length;
+                const isActive = activeTier === t;
+                return (
+                  <motion.div key={`tier-${t}`} className="absolute group" style={{ left: tierPos[i].x, top: tierPos[i].y, transform: "translate(-50%, -50%)" }} exit={{ scale: 0, opacity: 0 }}>
+                    <Bubble size={isActive ? SZ_TIER + 5 : SZ_TIER} color={tier.color} active={isActive} pulse={isActive} delay={i * 0.04}
+                      onClick={() => { setActiveTier(isActive ? null : t); setSheetData(null); setExamDetail(null); }}>
+                      <span className="text-sm drop-shadow-lg">{tier.emoji}</span>
+                      <span className="text-[6px] font-bold text-white drop-shadow-lg mt-0.5">{tier.label}</span>
+                      <span className="text-[5px] text-white/60">{count}</span>
+                    </Bubble>
+                    <Tooltip>
+                      <div className="text-xs font-bold text-[var(--foreground)]">{tier.emoji} {tier.label} universities</div>
+                      <div className="text-[10px] text-[var(--muted-foreground)] mt-1">{count} {count === 1 ? "university" : "universities"} · Tap to expand</div>
+                      <div className="text-[9px] text-[var(--muted-foreground)] mt-1 pt-1 border-t border-[var(--border)]">
+                        {t === "dream" ? "Hardest to get into, best outcomes" : t === "target" ? "Realistic with strong preparation" : "Good backup options, easier admission"}
+                      </div>
+                    </Tooltip>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+
+            {/* University bubbles within active tier */}
+            <AnimatePresence>
+              {activeTier && activeTierUnis.map((u, i) => (
                 <motion.div key={`uni-${u.slug}`} className="absolute group" style={{ left: uniPos[i].x, top: uniPos[i].y, transform: "translate(-50%, -50%)" }} exit={{ scale: 0, opacity: 0 }}>
                   <Bubble size={SZ_UNI} color={color} delay={i * 0.03}
                     onClick={() => { setSheetData(sheetData?.uni.slug === u.slug ? null : { uni: u, career: activeCareer!, country: activeCountry! }); setExamDetail(null); }}>
@@ -347,21 +426,21 @@ export function Journey({ careers, getCountries, getExams, getUnis }: JourneyPro
                       <div><div className="text-[10px] font-bold text-emerald-500">{u.salary}</div><div className="text-[8px] text-[var(--muted-foreground)]">Salary</div></div>
                       <div><div className="text-[10px] font-bold text-amber-500">{u.acceptance}</div><div className="text-[8px] text-[var(--muted-foreground)]">Accept</div></div>
                     </div>
-                    <div className="text-[9px] text-[var(--muted-foreground)] mt-2 pt-2 border-t border-[var(--border)]">Tap for full details</div>
+                    <div className="text-[9px] text-[var(--muted-foreground)] mt-2 pt-2 border-t border-[var(--border)]">Tap for details</div>
                   </Tooltip>
                 </motion.div>
               ))}
             </AnimatePresence>
 
-            {/* Label for exams vs unis */}
+            {/* Labels */}
             <AnimatePresence>
               {activeCountry && exams.length > 0 && (
-                <motion.div key="label-exams" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute text-[8px] font-mono uppercase tracking-[3px] text-amber-500/50" style={{ left: detailX - 15, top: examY0 - 25, transform: "translateX(-50%)" }}>
+                <motion.div key="label-exams" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute text-[8px] font-mono uppercase tracking-[3px] text-amber-500/50" style={{ left: detailX - 15, top: examY0 - 22, transform: "translateX(-50%)" }}>
                   Exams
                 </motion.div>
               )}
-              {activeCountry && unis.length > 0 && (
-                <motion.div key="label-unis" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute text-[8px] font-mono uppercase tracking-[3px]" style={{ left: detailX - 15, top: uniY0 - 25, transform: "translateX(-50%)", color: `${color}60` }}>
+              {activeCountry && activeTiers.length > 0 && (
+                <motion.div key="label-tiers" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute text-[8px] font-mono uppercase tracking-[3px]" style={{ left: detailX - 15, top: tierY0 - 22, transform: "translateX(-50%)", color: `${color}60` }}>
                   Universities
                 </motion.div>
               )}
