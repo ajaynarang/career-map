@@ -127,6 +127,7 @@ export function Journey({ careers, getCountries, getExams, getUnis }: JourneyPro
   const [activeCareer, setActiveCareer] = useState<string | null>(null);
   const [activeCountry, setActiveCountry] = useState<string | null>(null);
   const [sheetData, setSheetData] = useState<{ uni: UniData; career: string; country: string } | null>(null);
+  const [examDetail, setExamDetail] = useState<ExamData | null>(null);
 
   // Pan
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -307,7 +308,7 @@ export function Journey({ careers, getCountries, getExams, getUnis }: JourneyPro
               {activeCountry && exams.map((e, i) => (
                 <motion.div key={`ex-${e.slug}`} className="absolute group" style={{ left: examPos[i].x, top: examPos[i].y, transform: "translate(-50%, -50%)" }} exit={{ scale: 0, opacity: 0 }}>
                   <Bubble size={SZ_EXAM} color="#F59E0B" delay={i * 0.03}
-                    onClick={() => { if (e.website) window.open(e.website, "_blank"); }}>
+                    onClick={() => { setExamDetail(examDetail?.slug === e.slug ? null : e); setSheetData(null); }}>
                     <GraduationCap size={12} className="text-white drop-shadow-lg" />
                     <span className="text-[6px] font-bold text-white drop-shadow-lg mt-0.5 text-center px-0.5 leading-tight">{e.name.substring(0, 8)}</span>
                   </Bubble>
@@ -334,7 +335,7 @@ export function Journey({ careers, getCountries, getExams, getUnis }: JourneyPro
               {activeCountry && unis.map((u, i) => (
                 <motion.div key={`uni-${u.slug}`} className="absolute group" style={{ left: uniPos[i].x, top: uniPos[i].y, transform: "translate(-50%, -50%)" }} exit={{ scale: 0, opacity: 0 }}>
                   <Bubble size={SZ_UNI} color={color} delay={i * 0.03}
-                    onClick={() => setSheetData(sheetData?.uni.slug === u.slug ? null : { uni: u, career: activeCareer!, country: activeCountry! })}>
+                    onClick={() => { setSheetData(sheetData?.uni.slug === u.slug ? null : { uni: u, career: activeCareer!, country: activeCountry! }); setExamDetail(null); }}>
                     <span className="text-[6px] font-bold text-white drop-shadow-lg text-center px-0.5 leading-tight">{shortName(u.name)}</span>
                   </Bubble>
                   <Tooltip>
@@ -368,7 +369,57 @@ export function Journey({ careers, getCountries, getExams, getUnis }: JourneyPro
         </motion.div>
       </div>
 
-      {/* Inline Detail Card — fixed bottom panel */}
+      {/* Exam Detail Card — fixed bottom panel */}
+      <AnimatePresence>
+        {examDetail && (
+          <motion.div
+            key={`exam-${examDetail.slug}`}
+            initial={{ y: "100%", opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: "100%", opacity: 0 }}
+            transition={{ type: "spring", damping: 28, stiffness: 250 }}
+            className="fixed bottom-0 left-0 right-0 z-40 p-4 pt-0"
+          >
+            <div className="max-w-lg mx-auto bg-[var(--background)] border border-[var(--border)] rounded-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.15)] overflow-hidden">
+              <button onClick={() => setExamDetail(null)} className="absolute top-3 right-3 w-7 h-7 rounded-full bg-[var(--muted)] flex items-center justify-center cursor-pointer hover:bg-[var(--border)] transition-colors z-10">
+                <X size={12} className="text-[var(--muted-foreground)]" />
+              </button>
+
+              <div className="p-4 pb-3">
+                <div className="text-[9px] font-mono uppercase tracking-[3px] text-amber-500 mb-1">Entrance Exam</div>
+                <h3 className="text-base font-bold text-[var(--foreground)] pr-8">{examDetail.name}</h3>
+                <div className="text-[11px] text-[var(--muted-foreground)] mt-0.5">{examDetail.when}</div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-px bg-[var(--border)]">
+                <div className="bg-[var(--background)] p-3">
+                  <div className="text-[8px] text-[var(--muted-foreground)] uppercase tracking-wider mb-0.5">Fee</div>
+                  <div className="text-[11px] font-bold text-[var(--foreground)]">{examDetail.fee}</div>
+                </div>
+                <div className="bg-[var(--background)] p-3">
+                  <div className="text-[8px] text-[var(--muted-foreground)] uppercase tracking-wider mb-0.5">Format</div>
+                  <div className="text-[11px] font-semibold text-[var(--foreground)]">{examDetail.format.substring(0, 50)}</div>
+                </div>
+              </div>
+
+              <div className="px-4 py-3">
+                <div className="text-[8px] text-[var(--muted-foreground)] uppercase tracking-wider mb-1">Eligibility</div>
+                <div className="text-[11px] text-[var(--foreground)] leading-relaxed">{examDetail.eligibility.substring(0, 120)}</div>
+              </div>
+
+              {examDetail.website && (
+                <div className="px-4 pb-4 pt-1">
+                  <a href={examDetail.website} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl bg-amber-500 text-white text-xs font-bold no-underline">
+                    Register now <ExternalLink size={11} />
+                  </a>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* University Detail Card — fixed bottom panel */}
       <AnimatePresence>
         {sheetData && (() => {
           const { uni, career, country } = sheetData;
