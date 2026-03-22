@@ -354,12 +354,12 @@ export function Journey({ careers, getCountries, getExams, getUnis }: JourneyPro
             {/* Label for exams vs unis */}
             <AnimatePresence>
               {activeCountry && exams.length > 0 && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute text-[8px] font-mono uppercase tracking-[3px] text-amber-500/50" style={{ left: detailX - 15, top: examY0 - 25, transform: "translateX(-50%)" }}>
+                <motion.div key="label-exams" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute text-[8px] font-mono uppercase tracking-[3px] text-amber-500/50" style={{ left: detailX - 15, top: examY0 - 25, transform: "translateX(-50%)" }}>
                   Exams
                 </motion.div>
               )}
               {activeCountry && unis.length > 0 && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute text-[8px] font-mono uppercase tracking-[3px]" style={{ left: detailX - 15, top: uniY0 - 25, transform: "translateX(-50%)", color: `${color}60` }}>
+                <motion.div key="label-unis" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute text-[8px] font-mono uppercase tracking-[3px]" style={{ left: detailX - 15, top: uniY0 - 25, transform: "translateX(-50%)", color: `${color}60` }}>
                   Universities
                 </motion.div>
               )}
