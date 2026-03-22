@@ -125,20 +125,27 @@ const TIER_LABELS: Record<Tier, { emoji: string; label: string; color: string }>
 };
 
 function classifyTier(uni: UniData): Tier {
-  const acc = uni.acceptance.toLowerCase();
-  // Check for very competitive indicators
-  if (acc.includes("< 1") || acc.includes("<1") || acc.includes("top 100") || acc.includes("top 200") || acc.includes("top 500") ||
-      acc.includes("3.5%") || acc.includes("4%") || acc.includes("5%") || acc.includes("6%") || acc.includes("7%") ||
-      acc.includes("#1") || acc.includes("#2") || acc.includes("#3") ||
-      uni.ranking.toLowerCase().includes("#1") || uni.ranking.toLowerCase().includes("#2")) {
+  const r = uni.ranking.toLowerCase();
+  const n = uni.name.toLowerCase();
+
+  // Dream: top IITs, MIT, Stanford, Cambridge, Oxford, TU Munich etc.
+  if (n.includes("iit bombay") || n.includes("iit delhi") || n.includes("iit madras") || n.includes("iit kanpur") || n.includes("iit kharagpur") ||
+      n.includes("mit") || n.includes("stanford") || n.includes("cambridge") || n.includes("oxford") || n.includes("imperial") || n.includes("caltech") ||
+      n.includes("tu munich") || n.includes("carnegie mellon") || n.includes("uc berkeley") || n.includes("princeton") ||
+      r.includes("#1") || r.includes("#2") || r.includes("#3")) {
     return "dream";
   }
-  if (acc.includes("10") || acc.includes("15") || acc.includes("20") || acc.includes("99") || acc.includes("98") ||
-      acc.includes("top 1") || acc.includes("top 2") || acc.includes("top 5") ||
-      uni.ranking.toLowerCase().includes("#3") || uni.ranking.toLowerCase().includes("#4") || uni.ranking.toLowerCase().includes("#5") ||
-      uni.ranking.toLowerCase().includes("top 3") || uni.ranking.toLowerCase().includes("top 5") || uni.ranking.toLowerCase().includes("top 10")) {
+
+  // Target: BITS, IIIT, top NITs, Georgia Tech, Purdue, good German/UK unis
+  if (n.includes("bits") || n.includes("iiit") || n.includes("nit trichy") || n.includes("nit tiruchirappalli") ||
+      n.includes("georgia") || n.includes("purdue") || n.includes("uiuc") || n.includes("illinois") || n.includes("waterloo") ||
+      n.includes("rwth") || n.includes("kit") || n.includes("ucl") || n.includes("edinburgh") || n.includes("toronto") || n.includes("melbourne") ||
+      n.includes("mcgill") || n.includes("unsw") || n.includes("michigan") ||
+      r.includes("#4") || r.includes("#5") || r.includes("top 3") || r.includes("top 5") || r.includes("top 10")) {
     return "target";
   }
+
+  // Safety: everything else
   return "safety";
 }
 
@@ -165,6 +172,7 @@ export function Journey({ careers, getCountries, getExams, getUnis }: JourneyPro
   const [sheetData, setSheetData] = useState<{ uni: UniData; career: string; country: string } | null>(null);
   const [examDetail, setExamDetail] = useState<ExamData | null>(null);
   const [fullProfile, setFullProfile] = useState<{ uni: UniData; career: string; country: string } | null>(null);
+  const [actionPlanCareer, setActionPlanCareer] = useState<string | null>(null);
 
   // Pan
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -732,7 +740,7 @@ export function Journey({ careers, getCountries, getExams, getUnis }: JourneyPro
 
                 {/* Action plan nudge */}
                 {careerData && (
-                  <div className="mt-6 p-4 rounded-2xl bg-[var(--muted)] flex items-center gap-3 cursor-pointer" onClick={() => { setFullProfile(null); window.open(`/${career}/action-plan`, "_blank"); }}>
+                  <div className="mt-6 p-4 rounded-2xl bg-[var(--muted)] flex items-center gap-3 cursor-pointer" onClick={() => { setFullProfile(null); setActionPlanCareer(career); }}>
                     <div className="text-xl">📋</div>
                     <div>
                       <div className="text-xs font-bold text-[var(--foreground)]">Want the step-by-step plan?</div>
@@ -745,6 +753,28 @@ export function Journey({ careers, getCountries, getExams, getUnis }: JourneyPro
             </motion.div>
           );
         })()}
+      </AnimatePresence>
+
+      {/* Action Plan overlay — loads page in iframe */}
+      <AnimatePresence>
+        {actionPlanCareer && (
+          <motion.div
+            key="action-plan"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed inset-0 z-50 bg-[var(--background)]"
+          >
+            <button onClick={() => setActionPlanCareer(null)} className="fixed top-4 right-4 z-50 w-11 h-11 rounded-full bg-[var(--muted)] border border-[var(--border)] flex items-center justify-center cursor-pointer hover:bg-[var(--border)] transition-colors shadow-lg">
+              <X size={18} className="text-[var(--foreground)]" />
+            </button>
+            <iframe
+              src={`/${actionPlanCareer}/action-plan`}
+              className="w-full h-full border-none"
+              title="Action Plan"
+            />
+          </motion.div>
+        )}
       </AnimatePresence>
     </>
   );
