@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ career: s
   const careerData = getCareerMeta(careerSlug);
   if (!careerData) return {};
   return {
-    title: `${careerData.data.title} — PCM Career Map`,
+    title: `${careerData.data.title} — Career Compass`,
     description: careerData.data.description,
   };
 }

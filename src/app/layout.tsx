@@ -16,7 +16,7 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PCM Career Map",
+  title: "Career Compass",
   description: "Interactive career guidance for PCM students across India, USA, Germany, UK, Canada & Australia.",
 };
 

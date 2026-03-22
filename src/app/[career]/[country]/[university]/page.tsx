@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: { params: Promise<{ career: s
   const uniData = getUniversity(careerSlug, countrySlug, uniSlug);
   if (!uniData) return {};
   return {
-    title: `${uniData.data.name} — PCM Career Map`,
+    title: `${uniData.data.name} — Career Compass`,
     description: `${uniData.data.name} in ${uniData.data.location}. Fees: ${uniData.data.fees.inr}. ${uniData.data.ranking}. Admission guide for PCM students.`,
   };
 }

@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ career: s
   if (!careerData) return {};
   const countryLabel = COUNTRY_LABELS[countrySlug] || countrySlug;
   return {
-    title: `${careerData.data.title} in ${countryLabel} — PCM Career Map`,
+    title: `${careerData.data.title} in ${countryLabel} — Career Compass`,
     description: `Explore ${careerData.data.title.toLowerCase()} careers in ${countryLabel}. Exams, universities, fees, and admission guidance.`,
   };
 }

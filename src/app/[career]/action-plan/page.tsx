@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: { params: Promise<{ career: s
   const careerData = getCareerMeta(careerSlug);
   if (!careerData) return {};
   return {
-    title: `${careerData.data.title} Action Plan — PCM Career Map`,
+    title: `${careerData.data.title} Action Plan — Career Compass`,
     description: `Step-by-step preparation roadmap for ${careerData.data.title.toLowerCase()} from Class 9 to 12.`,
   };
 }
