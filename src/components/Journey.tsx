@@ -128,6 +128,7 @@ export function Journey({ careers, getCountries, getExams, getUnis }: JourneyPro
   const [activeCountry, setActiveCountry] = useState<string | null>(null);
   const [sheetData, setSheetData] = useState<{ uni: UniData; career: string; country: string } | null>(null);
   const [examDetail, setExamDetail] = useState<ExamData | null>(null);
+  const [fullProfile, setFullProfile] = useState<{ uni: UniData; career: string; country: string } | null>(null);
 
   // Pan
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -483,12 +484,161 @@ export function Journey({ careers, getCountries, getExams, getUnis }: JourneyPro
 
                 {/* Actions */}
                 <div className="flex gap-2 p-4 pt-2">
-                  <Link href={`/${career}/${country}/${uni.slug}`} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold no-underline text-white" style={{ background: c }}>
+                  <button onClick={() => setFullProfile({ uni, career, country })} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold text-white cursor-pointer" style={{ background: c }}>
                     Read more <ArrowRight size={12} />
-                  </Link>
+                  </button>
                   {uni.website && (
                     <a href={uni.website} target="_blank" rel="noopener noreferrer" className="w-10 rounded-xl border border-[var(--border)] flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors no-underline">
                       <Globe size={14} />
+                    </a>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          );
+        })()}
+      </AnimatePresence>
+      {/* Full-screen profile overlay */}
+      <AnimatePresence>
+        {fullProfile && (() => {
+          const { uni, career, country } = fullProfile;
+          const c = COLORS[career];
+          const countryExams = getExams(career, country);
+          const countryData = getCountries(career).find(co => co.slug === country);
+          return (
+            <motion.div
+              key={`full-${uni.slug}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-[var(--background)] overflow-y-auto"
+            >
+              {/* Close button */}
+              <button onClick={() => setFullProfile(null)} className="fixed top-5 right-5 z-50 w-11 h-11 rounded-full bg-[var(--muted)] border border-[var(--border)] flex items-center justify-center cursor-pointer hover:bg-[var(--border)] transition-colors">
+                <X size={18} className="text-[var(--foreground)]" />
+              </button>
+
+              {/* Hero */}
+              <div className="relative pt-16 pb-10 px-6" style={{ background: `linear-gradient(180deg, ${c}08 0%, transparent 100%)` }}>
+                <div className="max-w-2xl mx-auto">
+                  <div className="text-[10px] font-mono uppercase tracking-[4px] mb-2" style={{ color: c }}>{uni.ranking}</div>
+                  <h1 className="text-3xl md:text-4xl font-bold text-[var(--foreground)] mb-2">{uni.name}</h1>
+                  <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
+                    <MapPin size={14} /> {uni.location}
+                    {countryData && <span>· {countryData.flag} {countryData.label}</span>}
+                  </div>
+                </div>
+              </div>
+
+              <div className="max-w-2xl mx-auto px-6 pb-20">
+                {/* The 3 numbers */}
+                <div className="grid grid-cols-3 gap-3 mb-10">
+                  {[
+                    { label: "Annual cost", value: uni.feesInr, accent: c },
+                    { label: "Starting salary", value: uni.salary, accent: "#10B981" },
+                    { label: "Acceptance", value: uni.acceptance, accent: "#F59E0B" },
+                  ].map(s => (
+                    <div key={s.label} className="p-4 rounded-2xl bg-[var(--muted)] text-center">
+                      <div className="text-base font-bold mb-1" style={{ color: s.accent }}>{s.value}</div>
+                      <div className="text-[9px] text-[var(--muted-foreground)] uppercase tracking-wider">{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Programs */}
+                {uni.programs.length > 0 && (
+                  <div className="mb-8">
+                    <div className="flex items-center gap-2 mb-3">
+                      <BookOpen size={15} style={{ color: c }} />
+                      <h2 className="text-sm font-bold text-[var(--foreground)] uppercase tracking-wider">What you&apos;ll study</h2>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {uni.programs.map(p => <span key={p} className="text-xs px-3 py-1.5 rounded-full border border-[var(--border)] text-[var(--foreground)]">{p}</span>)}
+                    </div>
+                  </div>
+                )}
+
+                {/* Recruiters */}
+                {uni.recruiters.length > 0 && (
+                  <div className="mb-8">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Users size={15} style={{ color: c }} />
+                      <h2 className="text-sm font-bold text-[var(--foreground)] uppercase tracking-wider">Who hires from here</h2>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {uni.recruiters.map(r => <span key={r} className="text-xs px-3 py-1.5 rounded-full bg-[var(--muted)] text-[var(--muted-foreground)]">{r}</span>)}
+                    </div>
+                  </div>
+                )}
+
+                {/* Scholarships */}
+                {uni.scholarships.length > 0 && (
+                  <div className="mb-8 p-5 rounded-2xl bg-emerald-500/5 border border-emerald-500/10">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Star size={15} className="text-emerald-500" />
+                      <h2 className="text-sm font-bold text-[var(--foreground)] uppercase tracking-wider">Scholarships & financial aid</h2>
+                    </div>
+                    <ul className="space-y-2">
+                      {uni.scholarships.map(s => <li key={s} className="text-sm text-[var(--foreground)] leading-relaxed flex gap-2"><span className="text-emerald-500 flex-shrink-0">•</span>{s}</li>)}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Exams needed */}
+                {countryExams.length > 0 && (
+                  <div className="mb-8">
+                    <div className="flex items-center gap-2 mb-3">
+                      <GraduationCap size={15} className="text-amber-500" />
+                      <h2 className="text-sm font-bold text-[var(--foreground)] uppercase tracking-wider">Exams you need</h2>
+                    </div>
+                    <div className="space-y-2">
+                      {countryExams.map(e => (
+                        <div key={e.slug} className="flex items-center justify-between p-4 rounded-xl bg-[var(--muted)]">
+                          <div>
+                            <div className="text-sm font-bold text-[var(--foreground)]">{e.name}</div>
+                            <div className="text-xs text-[var(--muted-foreground)]">{e.when.substring(0, 50)}</div>
+                            <div className="text-xs text-[var(--muted-foreground)] mt-1">Fee: {e.fee}</div>
+                          </div>
+                          {e.website && <a href={e.website} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-500 text-xs font-bold no-underline flex items-center gap-1">Register <ExternalLink size={10} /></a>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Country info */}
+                {countryData && (
+                  <div className="mb-8 p-5 rounded-2xl bg-[var(--muted)]">
+                    <h2 className="text-sm font-bold text-[var(--foreground)] uppercase tracking-wider mb-3">
+                      Studying in {countryData.flag} {countryData.label}
+                    </h2>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <div className="text-[9px] text-[var(--muted-foreground)] uppercase mb-1">Total 4yr cost</div>
+                        <div className="text-sm font-bold" style={{ color: c }}>{countryData.budget.totalInr}</div>
+                      </div>
+                      <div>
+                        <div className="text-[9px] text-[var(--muted-foreground)] uppercase mb-1">Language</div>
+                        <div className="text-sm text-[var(--foreground)]">{countryData.language}</div>
+                      </div>
+                      <div>
+                        <div className="text-[9px] text-[var(--muted-foreground)] uppercase mb-1">Work visa after</div>
+                        <div className="text-sm text-[var(--foreground)]">{countryData.postStudyVisa}</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Links */}
+                <div className="flex gap-3">
+                  {uni.website && (
+                    <a href={uni.website} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl border-2 border-[var(--border)] text-sm font-bold text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors no-underline">
+                      <Globe size={16} /> Visit website
+                    </a>
+                  )}
+                  {uni.applyLink && (
+                    <a href={uni.applyLink} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold text-white no-underline" style={{ background: c }}>
+                      Apply now <ExternalLink size={14} />
                     </a>
                   )}
                 </div>
