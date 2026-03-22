@@ -348,15 +348,9 @@ export function Journey({ careers, getCountries, getExams, getUnis, actionPlans 
                           {selectedExam?.slug === e.slug && (
                             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                               <div className="px-4 pb-4 border-t border-[var(--border)] pt-3">
-                                <div className="grid grid-cols-2 gap-2 mb-3">
-                                  <div className="p-2.5 rounded-lg bg-[var(--muted)]">
-                                    <div className="text-[9px] text-[var(--muted-foreground)] uppercase">Fee</div>
-                                    <div className="text-xs font-bold text-[var(--foreground)]">{e.fee}</div>
-                                  </div>
-                                  <div className="p-2.5 rounded-lg bg-[var(--muted)]">
-                                    <div className="text-[9px] text-[var(--muted-foreground)] uppercase">Format</div>
-                                    <div className="text-xs text-[var(--foreground)]">{e.format.length > 60 ? e.format.substring(0, 57) + "..." : e.format}</div>
-                                  </div>
+                                <div className="p-2.5 rounded-lg bg-[var(--muted)] mb-3">
+                                  <div className="text-[9px] text-[var(--muted-foreground)] uppercase mb-1">Exam format</div>
+                                  <div className="text-xs text-[var(--foreground)] leading-relaxed">{e.format}</div>
                                 </div>
                                 <p className="text-[11px] text-[var(--muted-foreground)] leading-relaxed mb-2">{e.eligibility}</p>
                                 {e.website && (
