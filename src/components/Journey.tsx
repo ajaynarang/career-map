@@ -6,7 +6,7 @@ import {
   X, MapPin, ArrowRight, ExternalLink, Globe,
   BookOpen, Users, Star, Award, Zap, Sun, Moon, GraduationCap,
   ChevronRight, ChevronDown, Clock, DollarSign, Briefcase, Shield,
-  ArrowLeft, TrendingUp,
+  ArrowLeft, TrendingUp, Rocket,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import dynamic from "next/dynamic";
@@ -41,6 +41,68 @@ const CAREER_META: Record<string, { fit: string; salaryIndia: string; salaryAbro
   design: { fit: "Artistic, empathetic, detail-oriented", salaryIndia: "₹4-30 LPA", salaryAbroad: "$50-120K", prepCost: "₹50K-2L/yr" },
   "merchant-navy": { fit: "Adventurous, independent, loves sea", salaryIndia: "₹8-40 LPA (tax-free)", salaryAbroad: "Similar globally", prepCost: "₹5-15L total training" },
   aviation: { fit: "Loves flying, disciplined, sharp reflexes", salaryIndia: "₹12-50 LPA", salaryAbroad: "$80-200K", prepCost: "₹25-50L (CPL training)" },
+};
+
+// ─── Founder Track Data ───
+
+const FOUNDER_CAREERS = ["engineering", "science", "finance", "architecture", "defence", "design", "merchant-navy", "aviation"];
+
+const STARTUP_ECOSYSTEMS: Record<string, { rating: string; score: number; visa: string; hubs: string; funding: string }> = {
+  india: { rating: "🔥 3rd largest globally", score: 5, visa: "No visa needed (Indian citizens)", hubs: "Bangalore (IT), Delhi NCR (B2B), Mumbai (FinTech), Hyderabad (AI)", funding: "Seed: ₹25L-2Cr via Y Combinator India, Sequoia Surge, 100X.VC" },
+  usa: { rating: "🏆 #1 global ecosystem", score: 5, visa: "O-1A (extraordinary ability) or EB-2 NIW for founders", hubs: "Bay Area, NYC, Austin, Boston, Miami", funding: "Seed: $500K-$3M via YC, a16z, Sequoia, First Round" },
+  germany: { rating: "📈 Europe's fastest growing", score: 3, visa: "§21 Residence Permit for self-employment (freelance visa)", hubs: "Berlin (#1 in EU for startups), Munich (deep tech), Hamburg (logistics)", funding: "Seed: €100K-€1M via EXIST grant, High-Tech Gründerfonds" },
+  uk: { rating: "⭐ Europe's #1 for VC funding", score: 4, visa: "Innovator Founder visa (endorsed by approved body)", hubs: "London (global hub), Cambridge (biotech), Manchester (FinTech)", funding: "Seed: £150K-£1.5M via Seedcamp, Entrepreneur First, SFC Capital" },
+};
+
+const FOUNDER_TIPS: Record<string, string[]> = {
+  engineering: [
+    "60%+ of Indian unicorn founders are engineers (Flipkart, Ola, Zerodha, Freshworks). Your tech skills = unfair advantage",
+    "Build a real product in college — launch on Product Hunt, get 100 users. IIT Bombay e-Cell, BITS Conquest are launchpads",
+    "Top incubators: IIT Bombay SINE, IIT Madras IITM-IC, Stanford StartX, MIT delta v, Y Combinator (accepts students)",
+    "Learn: Product management + sales alongside coding. A founder who can build AND sell is unstoppable",
+  ],
+  finance: [
+    "FinTech is India's #1 funded startup sector (Paytm, Razorpay, Zerodha). Your CA/CFA skills = regulatory moat",
+    "Best path: Work 2-3 years at a Goldman Sachs/McKinsey → build network → launch. 80% of FinTech founders did this",
+    "Key universities for founder networks: IIM Ahmedabad (CIIE incubator), Wharton (Penn Wharton Innovation Fund), LSE",
+    "India's UPI revolution created $50B+ in FinTech value. Next wave: InsurTech, WealthTech, cross-border payments",
+  ],
+  design: [
+    "Design-led companies are valued 2x higher (Figma: $20B, Canva: $40B, Notion: $10B). Visual thinkers build better products",
+    "Your superpower: You can prototype in hours what others take weeks. Use Figma → ship fast → get user feedback",
+    "Best incubators for designers: NID Ahmedabad (startup studio), RCA InnovationRCA, Parsons ELab, MIT Media Lab",
+    "Build a portfolio of working products (not just mockups). Show 'I designed AND shipped this' to investors",
+  ],
+  science: [
+    "Deep tech startups have 10x higher valuations than software (biotech, quantum, materials). Your research IS your moat",
+    "PhD-to-startup path works: 40% of YC biotech founders have PhDs. Universities like IISc, MIT, Cambridge have tech transfer offices",
+    "Look for: BIRAC BIG grants (India), NSF I-Corps (USA), EIC Pathfinder (EU) — government funding for science startups",
+    "Dual degree (BSc/MSc + MBA) keeps both doors open. IISc has a startup cell, IIT Madras has the #1 research park in India",
+  ],
+  architecture: [
+    "PropTech & ConTech are $30B+ markets — architects who code are building the future of how we design and construct",
+    "Successful arch-founders: WeWork (co-working), Planner 5D (3D design), Houzz ($4B home renovation platform)",
+    "Your 3D modeling + spatial thinking = unfair advantage in AR/VR, metaverse, and digital twin startups",
+    "Start with: A design tool, a sustainability audit service, or a modular housing concept. Solve real builder/homeowner pain",
+  ],
+  defence: [
+    "India's defence startup ecosystem is booming — iDEX (Innovations for Defence Excellence) funds 100+ startups/year",
+    "Drone tech, cyber security, defence electronics — ₹100Cr+ government contracts available for Indian defence startups",
+    "After military service (5-14 yrs), you gain discipline + clearance + network that no MBA can teach",
+    "Key programs: iDEX DISC challenges, DRDO Technology Development Fund, Make in India defence corridor (UP & TN)",
+  ],
+  "merchant-navy": [
+    "Maritime logistics is a $14 trillion industry ripe for disruption — most still run on paper and phone calls",
+    "Successful maritime startups: Flexport ($8B), Freightos, MarineTraffic, Windward — all founded by industry insiders",
+    "Your at-sea experience gives you deep domain knowledge that tech founders lack — that's your moat",
+    "Start with: Crew management software, vessel tracking tools, or maritime training platforms. Solve problems you've lived",
+  ],
+  aviation: [
+    "Aviation tech is exploding: drone delivery, eVTOL (flying taxis), aviation SaaS — $1T+ market by 2030",
+    "Your pilot license + aviation knowledge = unfair advantage. Founders like those at Joby Aviation changed the industry",
+    "Drone startups in India: Garuda Aerospace, IdeaForge (₹2,000Cr IPO). DGCA drone regulations opening new opportunities",
+    "Start with: Flight training platforms, aviation maintenance SaaS, or drone services. Lower capital than airline startup",
+  ],
 };
 
 type Tier = "dream" | "target" | "safety";
@@ -139,6 +201,9 @@ export function Journey({ careers, getCountries, getExams, getUnis, actionPlans 
   const [selectedUni, setSelectedUni] = useState<UniData | null>(null);
   const [selectedExam, setSelectedExam] = useState<ExamData | null>(null);
   const [showActionPlan, setShowActionPlan] = useState(false);
+  const [founderMode, setFounderMode] = useState(false);
+  const [showFounderTrack, setShowFounderTrack] = useState(false);
+  const isFounderRelevant = selectedCareer ? FOUNDER_CAREERS.includes(selectedCareer) : false;
 
   const career = careers.find(c => c.slug === selectedCareer);
   const color = selectedCareer ? COLORS[selectedCareer] || "#3B82F6" : "#3B82F6";
@@ -264,9 +329,33 @@ export function Journey({ careers, getCountries, getExams, getUnis, actionPlans 
               <h3 className="text-base font-bold text-[var(--foreground)] mb-1">Where do you want to study?</h3>
               <p className="text-xs text-[var(--muted-foreground)] mb-5">Each country has different costs, exams, and opportunities.</p>
 
+              {/* Founder Mode Toggle */}
+              {isFounderRelevant && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-4">
+                  <button
+                    onClick={() => setFounderMode(!founderMode)}
+                    className={`w-full p-3 rounded-xl text-left cursor-pointer border-2 transition-all flex items-center gap-3 ${
+                      founderMode
+                        ? "border-orange-500/40 bg-orange-500/5"
+                        : "border-[var(--border)] bg-[var(--card)] hover:border-[var(--muted-foreground)]/20"
+                    }`}
+                  >
+                    <Rocket size={18} className={founderMode ? "text-orange-500" : "text-[var(--muted-foreground)]"} />
+                    <div className="flex-1">
+                      <div className="text-xs font-bold text-[var(--foreground)]">I might start my own company</div>
+                      <div className="text-[10px] text-[var(--muted-foreground)]">See startup ecosystems, founder visas & incubators</div>
+                    </div>
+                    <div className={`w-9 h-5 rounded-full transition-colors flex items-center ${founderMode ? "bg-orange-500 justify-end" : "bg-[var(--muted)] justify-start"}`}>
+                      <div className="w-4 h-4 rounded-full bg-white mx-0.5 shadow-sm" />
+                    </div>
+                  </button>
+                </motion.div>
+              )}
+
               <div className="space-y-2">
                 {countries.map((c, i) => {
                   const countryUnis = getUnis(career.slug, c.slug);
+                  const startup = STARTUP_ECOSYSTEMS[c.slug];
                   return (
                     <motion.button key={c.slug} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
                       whileHover={{ y: -2 }} whileTap={{ scale: 0.99 }}
@@ -285,6 +374,17 @@ export function Journey({ careers, getCountries, getExams, getUnis, actionPlans 
                               <span className="text-[11px] text-[var(--muted-foreground)]">{c.language}</span>
                               <span className="text-[11px] text-[var(--muted-foreground)]">{c.postStudyVisa} work visa</span>
                             </div>
+                            {/* Founder mode extra info */}
+                            {founderMode && startup && (
+                              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-2 pt-2 border-t border-[var(--border)]">
+                                <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+                                  <span className="text-[10px] font-bold text-orange-600 dark:text-orange-400">{startup.rating}</span>
+                                  <span className="text-[10px] text-[var(--muted-foreground)]">{startup.visa}</span>
+                                </div>
+                                <div className="text-[10px] text-[var(--muted-foreground)] mt-0.5">Hubs: {startup.hubs}</div>
+                                <div className="text-[10px] text-[var(--muted-foreground)]">{startup.funding}</div>
+                              </motion.div>
+                            )}
                           </div>
                         </div>
                         <ArrowRight size={14} className="text-[var(--muted-foreground)] group-hover:translate-x-1 transition-transform flex-shrink-0" />
@@ -294,15 +394,29 @@ export function Journey({ careers, getCountries, getExams, getUnis, actionPlans 
                 })}
               </div>
 
-              {/* Action plan */}
-              <button onClick={() => setShowActionPlan(true)} className="w-full mt-6 p-4 rounded-2xl text-left cursor-pointer border-2 border-dashed border-[var(--border)] hover:border-[var(--muted-foreground)]/20 transition-colors flex items-center gap-3 group">
-                <span className="text-xl">📋</span>
-                <div className="flex-1">
-                  <div className="text-sm font-bold text-[var(--foreground)]">Step-by-step action plan</div>
-                  <div className="text-[10px] text-[var(--muted-foreground)]">What to do from Class 9 to 12 — month by month</div>
-                </div>
-                <ArrowRight size={14} className="text-[var(--muted-foreground)] group-hover:translate-x-1 transition-transform" />
-              </button>
+              {/* Action plan + Founder track */}
+              <div className="space-y-2 mt-6">
+                <button onClick={() => setShowActionPlan(true)} className="w-full p-4 rounded-2xl text-left cursor-pointer border-2 border-dashed border-[var(--border)] hover:border-[var(--muted-foreground)]/20 transition-colors flex items-center gap-3 group">
+                  <span className="text-xl">📋</span>
+                  <div className="flex-1">
+                    <div className="text-sm font-bold text-[var(--foreground)]">Step-by-step action plan</div>
+                    <div className="text-[10px] text-[var(--muted-foreground)]">What to do from Class 9 to 12 — month by month</div>
+                  </div>
+                  <ArrowRight size={14} className="text-[var(--muted-foreground)] group-hover:translate-x-1 transition-transform" />
+                </button>
+
+                {/* Founder Track Card — only when toggle is on */}
+                {isFounderRelevant && founderMode && (
+                  <button onClick={() => setShowFounderTrack(true)} className="w-full p-4 rounded-2xl text-left cursor-pointer border-2 border-dashed border-orange-500/20 hover:border-orange-500/40 bg-orange-500/[0.02] transition-colors flex items-center gap-3 group">
+                    <span className="text-xl">🚀</span>
+                    <div className="flex-1">
+                      <div className="text-sm font-bold text-[var(--foreground)]">Founder track</div>
+                      <div className="text-[10px] text-[var(--muted-foreground)]">Extra skills, resources & mindset for aspiring entrepreneurs</div>
+                    </div>
+                    <ArrowRight size={14} className="text-orange-500/60 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                )}
+              </div>
             </motion.div>
           )}
 
@@ -514,6 +628,135 @@ export function Journey({ careers, getCountries, getExams, getUnis, actionPlans 
             <h1 className="text-2xl font-bold text-[var(--foreground)] mb-2">Your Action Plan</h1>
             <p className="text-sm text-[var(--muted-foreground)] mb-8">What to do from Class 9 to Class 12 — step by step</p>
             {actionPlans[selectedCareer] ? <ActionPlanMDX content={actionPlans[selectedCareer]} /> : <p className="text-sm text-[var(--muted-foreground)]">Coming soon.</p>}
+          </div>
+        )}
+      </Overlay>
+
+      {/* ═══ FOUNDER TRACK OVERLAY ═══ */}
+      <Overlay open={showFounderTrack} onClose={() => setShowFounderTrack(false)}>
+        {selectedCareer && isFounderRelevant && (
+          <div className="max-w-2xl mx-auto px-6 py-14">
+            <div className="text-[9px] font-mono uppercase tracking-[4px] text-orange-500 mb-2">FOUNDER TRACK</div>
+            <h1 className="text-2xl font-bold text-[var(--foreground)] mb-2">
+              {career?.title} + Entrepreneurship
+            </h1>
+            <p className="text-sm text-[var(--muted-foreground)] mb-8">
+              How to prepare for building your own company while studying {career?.title.toLowerCase()}
+            </p>
+
+            {/* Career-specific founder tips */}
+            {FOUNDER_TIPS[selectedCareer] && (
+              <div className="mb-8">
+                <h3 className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <Zap size={14} className="text-orange-500" /> Why {career?.title.toLowerCase()} founders win
+                </h3>
+                <div className="space-y-2">
+                  {FOUNDER_TIPS[selectedCareer].map((tip, i) => (
+                    <div key={i} className="p-3 rounded-xl bg-[var(--muted)] text-sm text-[var(--foreground)] flex gap-3">
+                      <span className="text-orange-500 font-bold mt-0.5">{i + 1}.</span>
+                      <span className="leading-relaxed">{tip}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Startup ecosystem comparison */}
+            <div className="mb-8">
+              <h3 className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider mb-3 flex items-center gap-2">
+                <Globe size={14} className="text-orange-500" /> Startup ecosystem by country
+              </h3>
+              <div className="space-y-2">
+                {Object.entries(STARTUP_ECOSYSTEMS).map(([slug, eco]) => (
+                  <div key={slug} className="p-4 rounded-xl border border-[var(--border)] bg-[var(--card)]">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">{slug === "india" ? "🇮🇳" : slug === "usa" ? "🇺🇸" : slug === "germany" ? "🇩🇪" : "🇬🇧"}</span>
+                        <span className="text-sm font-bold text-[var(--foreground)]">{slug === "india" ? "India" : slug === "usa" ? "USA" : slug === "germany" ? "Germany" : "UK"}</span>
+                      </div>
+                      <span className="text-xs font-bold text-orange-600 dark:text-orange-400">{eco.rating}</span>
+                    </div>
+                    <div className="grid grid-cols-1 gap-1 text-[11px] text-[var(--muted-foreground)]">
+                      <div><span className="font-semibold text-[var(--foreground)]">Founder visa:</span> {eco.visa}</div>
+                      <div><span className="font-semibold text-[var(--foreground)]">Startup hubs:</span> {eco.hubs}</div>
+                      <div><span className="font-semibold text-[var(--foreground)]">Typical funding:</span> {eco.funding}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Timeline */}
+            <div className="mb-8">
+              <h3 className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider mb-3 flex items-center gap-2">
+                <Clock size={14} className="text-orange-500" /> Founder preparation timeline
+              </h3>
+              <div className="space-y-0">
+                {[
+                  { phase: "Class 11-12", action: "Read 'Zero to One'. Follow founders on Twitter/LinkedIn. Try building something small — a website, app, or solving a problem you see around you. Join your school's entrepreneurship or innovation club." },
+                  { phase: "College Year 1-2", action: "Join your college E-Cell or startup club. Attend hackathons (Smart India Hackathon, MLH). Take entrepreneurship electives. Start reading YC essays and Startup School. Find people who think like you." },
+                  { phase: "College Year 3-4", action: "Build a real product with real users (even 10 is great). Apply to college incubators. Enter competitions (Hult Prize, BITS Conquest, IIT Bombay E-Summit). Consider summer internship at a startup." },
+                  { phase: "After graduation", action: "Two paths work: (A) Launch directly — apply to YC/Antler/Sequoia Surge with your college project, or (B) Work 2-3 years at a high-growth startup (learn operations, fundraising, culture) then launch with experience + savings." },
+                ].map((item, i) => (
+                  <div key={i} className="flex gap-3 pb-4">
+                    <div className="flex flex-col items-center">
+                      <div className="w-3 h-3 rounded-full bg-orange-500 flex-shrink-0 mt-1" />
+                      {i < 3 && <div className="w-0.5 flex-1 bg-orange-500/20 mt-1" />}
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-orange-600 dark:text-orange-400">{item.phase}</div>
+                      <div className="text-sm text-[var(--foreground)] mt-0.5 leading-relaxed">{item.action}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Key resources — all clickable */}
+            <div className="mb-8">
+              <h3 className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider mb-3 flex items-center gap-2">
+                <BookOpen size={14} className="text-orange-500" /> Resources & programs
+              </h3>
+              <div className="space-y-1.5 text-[11px]">
+                {[
+                  { label: "Y Combinator Startup School", desc: "Free online course — best startup education globally", url: "https://www.startupschool.org/" },
+                  { label: "Apply to Y Combinator", desc: "$500K funding, accepts students & non-US founders", url: "https://www.ycombinator.com/apply" },
+                  { label: "Startup India (DPIIT)", desc: "Register your startup, ₹10Cr fund, 3-year tax holiday", url: "https://www.startupindia.gov.in/" },
+                  { label: "iDEX — Defence Innovation", desc: "Grants up to ₹1.5Cr for defence/security startups", url: "https://idex.gov.in/" },
+                  { label: "BIRAC BIG Grant", desc: "Up to ₹50L for biotech & life science startups", url: "https://birac.nic.in/" },
+                  { label: "Atal Innovation Mission", desc: "Government incubators, tinkering labs, and seed funding", url: "https://aim.gov.in/" },
+                  { label: "Sequoia Surge (India/SEA)", desc: "$1-2M seed for early-stage startups", url: "https://www.surgeahead.com/" },
+                  { label: "Entrepreneur First", desc: "Build a startup from scratch with a co-founder (London, Bangalore)", url: "https://www.joinef.com/" },
+                  { label: "Antler India", desc: "Pre-seed VC, build from Day 0 with mentors", url: "https://www.antler.co/location/india" },
+                  { label: "100X.VC", desc: "India's first CCD-based VC, ₹25L for idea-stage startups", url: "https://www.100x.vc/" },
+                ].map(r => (
+                  <a key={r.url} href={r.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-2.5 rounded-lg bg-[var(--muted)] no-underline group hover:bg-[var(--border)] transition-colors">
+                    <div>
+                      <span className="font-semibold text-[var(--foreground)]">{r.label}</span>
+                      <span className="text-[var(--muted-foreground)]"> — {r.desc}</span>
+                    </div>
+                    <ExternalLink size={10} className="text-[var(--muted-foreground)] group-hover:text-orange-500 flex-shrink-0 ml-2" />
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Must-read */}
+            <div className="p-4 rounded-xl bg-orange-500/5 border border-orange-500/10">
+              <div className="text-xs font-bold text-orange-600 dark:text-orange-400 mb-2">📚 Must-read for aspiring founders</div>
+              <div className="space-y-1.5 text-[11px]">
+                {[
+                  { title: "Zero to One", author: "Peter Thiel", desc: "How to think about building something truly new" },
+                  { title: "The Lean Startup", author: "Eric Ries", desc: "Build → Measure → Learn — the methodology every founder uses" },
+                  { title: "The Hard Thing About Hard Things", author: "Ben Horowitz", desc: "Real talk about what running a startup actually feels like" },
+                  { title: "Shoe Dog", author: "Phil Knight (Nike)", desc: "One of the greatest founder stories ever written" },
+                ].map(b => (
+                  <div key={b.title} className="text-[var(--foreground)]">
+                    <span className="font-semibold">{b.title}</span> <span className="text-[var(--muted-foreground)]">({b.author})</span> — <span className="text-[var(--muted-foreground)]">{b.desc}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
       </Overlay>
