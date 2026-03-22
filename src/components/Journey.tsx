@@ -498,150 +498,170 @@ export function Journey({ careers, getCountries, getExams, getUnis }: JourneyPro
           );
         })()}
       </AnimatePresence>
-      {/* Full-screen profile overlay */}
+      {/* Full-screen profile overlay — organized as parent questions */}
       <AnimatePresence>
         {fullProfile && (() => {
           const { uni, career, country } = fullProfile;
           const c = COLORS[career];
           const countryExams = getExams(career, country);
           const countryData = getCountries(career).find(co => co.slug === country);
+          const careerData = careers.find(cr => cr.slug === career);
           return (
             <motion.div
               key={`full-${uni.slug}`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.3 }}
               className="fixed inset-0 z-50 bg-[var(--background)] overflow-y-auto"
             >
-              {/* Close button */}
-              <button onClick={() => setFullProfile(null)} className="fixed top-5 right-5 z-50 w-11 h-11 rounded-full bg-[var(--muted)] border border-[var(--border)] flex items-center justify-center cursor-pointer hover:bg-[var(--border)] transition-colors">
+              {/* Close */}
+              <button onClick={() => setFullProfile(null)} className="fixed top-4 right-4 z-50 w-11 h-11 rounded-full bg-[var(--muted)] border border-[var(--border)] flex items-center justify-center cursor-pointer hover:bg-[var(--border)] transition-colors shadow-lg">
                 <X size={18} className="text-[var(--foreground)]" />
               </button>
 
               {/* Hero */}
-              <div className="relative pt-16 pb-10 px-6" style={{ background: `linear-gradient(180deg, ${c}08 0%, transparent 100%)` }}>
-                <div className="max-w-2xl mx-auto">
-                  <div className="text-[10px] font-mono uppercase tracking-[4px] mb-2" style={{ color: c }}>{uni.ranking}</div>
-                  <h1 className="text-3xl md:text-4xl font-bold text-[var(--foreground)] mb-2">{uni.name}</h1>
+              <div className="pt-14 pb-8 px-6" style={{ background: `linear-gradient(180deg, ${c}06 0%, transparent 100%)` }}>
+                <div className="max-w-xl mx-auto">
+                  <div className="text-[9px] font-mono uppercase tracking-[4px] mb-2" style={{ color: c }}>{uni.ranking}</div>
+                  <h1 className="text-2xl md:text-3xl font-bold text-[var(--foreground)] mb-1.5 leading-tight">{uni.name}</h1>
                   <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
-                    <MapPin size={14} /> {uni.location}
-                    {countryData && <span>· {countryData.flag} {countryData.label}</span>}
+                    <MapPin size={13} /> {uni.location} {countryData && <span>· {countryData.flag}</span>}
                   </div>
                 </div>
               </div>
 
-              <div className="max-w-2xl mx-auto px-6 pb-20">
-                {/* The 3 numbers */}
-                <div className="grid grid-cols-3 gap-3 mb-10">
-                  {[
-                    { label: "Annual cost", value: uni.feesInr, accent: c },
-                    { label: "Starting salary", value: uni.salary, accent: "#10B981" },
-                    { label: "Acceptance", value: uni.acceptance, accent: "#F59E0B" },
-                  ].map(s => (
-                    <div key={s.label} className="p-4 rounded-2xl bg-[var(--muted)] text-center">
-                      <div className="text-base font-bold mb-1" style={{ color: s.accent }}>{s.value}</div>
-                      <div className="text-[9px] text-[var(--muted-foreground)] uppercase tracking-wider">{s.label}</div>
+              <div className="max-w-xl mx-auto px-6 pb-24">
+
+                {/* ── Q1: What will it cost? ── */}
+                <div className="mb-8">
+                  <h2 className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider mb-3">💰 What will it cost?</h2>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-4 rounded-2xl bg-[var(--muted)]">
+                      <div className="text-[9px] text-[var(--muted-foreground)] uppercase mb-1">Per year</div>
+                      <div className="text-lg font-bold" style={{ color: c }}>{uni.feesInr}</div>
                     </div>
-                  ))}
+                    {countryData && (
+                      <div className="p-4 rounded-2xl bg-[var(--muted)]">
+                        <div className="text-[9px] text-[var(--muted-foreground)] uppercase mb-1">Total 4 years</div>
+                        <div className="text-lg font-bold text-[var(--foreground)]">{countryData.budget.totalInr}</div>
+                        <div className="text-[9px] text-[var(--muted-foreground)] mt-0.5">incl. living expenses</div>
+                      </div>
+                    )}
+                  </div>
+                  {uni.scholarships.length > 0 && (
+                    <div className="mt-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+                      <div className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mb-1.5">🎓 Scholarships available</div>
+                      <ul className="space-y-1">
+                        {uni.scholarships.slice(0, 3).map(s => <li key={s} className="text-[11px] text-[var(--foreground)] leading-relaxed flex gap-1.5"><span className="text-emerald-500">•</span>{s}</li>)}
+                        {uni.scholarships.length > 3 && <li className="text-[10px] text-emerald-500">+{uni.scholarships.length - 3} more</li>}
+                      </ul>
+                    </div>
+                  )}
                 </div>
 
-                {/* Programs */}
-                {uni.programs.length > 0 && (
-                  <div className="mb-8">
-                    <div className="flex items-center gap-2 mb-3">
-                      <BookOpen size={15} style={{ color: c }} />
-                      <h2 className="text-sm font-bold text-[var(--foreground)] uppercase tracking-wider">What you&apos;ll study</h2>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {uni.programs.map(p => <span key={p} className="text-xs px-3 py-1.5 rounded-full border border-[var(--border)] text-[var(--foreground)]">{p}</span>)}
-                    </div>
+                {/* ── Q2: Can my child get in? ── */}
+                <div className="mb-8">
+                  <h2 className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider mb-3">🎯 Can my child get in?</h2>
+                  <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10">
+                    <div className="text-sm font-bold text-[var(--foreground)] mb-2">{uni.acceptance}</div>
                   </div>
-                )}
-
-                {/* Recruiters */}
-                {uni.recruiters.length > 0 && (
-                  <div className="mb-8">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Users size={15} style={{ color: c }} />
-                      <h2 className="text-sm font-bold text-[var(--foreground)] uppercase tracking-wider">Who hires from here</h2>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {uni.recruiters.map(r => <span key={r} className="text-xs px-3 py-1.5 rounded-full bg-[var(--muted)] text-[var(--muted-foreground)]">{r}</span>)}
-                    </div>
-                  </div>
-                )}
-
-                {/* Scholarships */}
-                {uni.scholarships.length > 0 && (
-                  <div className="mb-8 p-5 rounded-2xl bg-emerald-500/5 border border-emerald-500/10">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Star size={15} className="text-emerald-500" />
-                      <h2 className="text-sm font-bold text-[var(--foreground)] uppercase tracking-wider">Scholarships & financial aid</h2>
-                    </div>
-                    <ul className="space-y-2">
-                      {uni.scholarships.map(s => <li key={s} className="text-sm text-[var(--foreground)] leading-relaxed flex gap-2"><span className="text-emerald-500 flex-shrink-0">•</span>{s}</li>)}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Exams needed */}
-                {countryExams.length > 0 && (
-                  <div className="mb-8">
-                    <div className="flex items-center gap-2 mb-3">
-                      <GraduationCap size={15} className="text-amber-500" />
-                      <h2 className="text-sm font-bold text-[var(--foreground)] uppercase tracking-wider">Exams you need</h2>
-                    </div>
-                    <div className="space-y-2">
+                  {countryExams.length > 0 && (
+                    <div className="mt-3 space-y-2">
+                      <div className="text-[10px] text-[var(--muted-foreground)] uppercase tracking-wider">Exams required</div>
                       {countryExams.map(e => (
-                        <div key={e.slug} className="flex items-center justify-between p-4 rounded-xl bg-[var(--muted)]">
+                        <div key={e.slug} className="flex items-center justify-between p-3 rounded-xl bg-[var(--muted)]">
                           <div>
-                            <div className="text-sm font-bold text-[var(--foreground)]">{e.name}</div>
-                            <div className="text-xs text-[var(--muted-foreground)]">{e.when.substring(0, 50)}</div>
-                            <div className="text-xs text-[var(--muted-foreground)] mt-1">Fee: {e.fee}</div>
+                            <div className="text-xs font-bold text-[var(--foreground)]">{e.name}</div>
+                            <div className="text-[10px] text-[var(--muted-foreground)]">{e.when.substring(0, 45)} · Fee: {e.fee}</div>
                           </div>
-                          {e.website && <a href={e.website} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-500 text-xs font-bold no-underline flex items-center gap-1">Register <ExternalLink size={10} /></a>}
+                          {e.website && <a href={e.website} target="_blank" rel="noopener noreferrer" className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-bold no-underline flex items-center gap-1">Register <ExternalLink size={9} /></a>}
                         </div>
                       ))}
                     </div>
+                  )}
+                </div>
+
+                {/* ── Q3: What will my child become? ── */}
+                <div className="mb-8">
+                  <h2 className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider mb-3">🚀 What happens after graduation?</h2>
+                  <div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 mb-3">
+                    <div className="text-[9px] text-[var(--muted-foreground)] uppercase mb-1">Starting salary</div>
+                    <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{uni.salary}</div>
+                  </div>
+                  {uni.recruiters.length > 0 && (
+                    <div>
+                      <div className="text-[10px] text-[var(--muted-foreground)] uppercase tracking-wider mb-2">Companies that hire from here</div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {uni.recruiters.map(r => <span key={r} className="text-[10px] px-2.5 py-1 rounded-full bg-[var(--muted)] text-[var(--muted-foreground)]">{r}</span>)}
+                      </div>
+                    </div>
+                  )}
+                  {countryData && (
+                    <div className="mt-3 p-3 rounded-xl bg-[var(--muted)]">
+                      <div className="text-[10px] text-[var(--muted-foreground)]">
+                        <span className="font-bold">After graduating:</span> {countryData.postStudyVisa} work visa in {countryData.flag} {countryData.label}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ── Q4: What will they study? ── */}
+                {uni.programs.length > 0 && (
+                  <div className="mb-8">
+                    <h2 className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider mb-3">📚 Available programs</h2>
+                    <div className="flex flex-wrap gap-1.5">
+                      {uni.programs.map(p => <span key={p} className="text-[11px] px-3 py-1.5 rounded-full border border-[var(--border)] text-[var(--foreground)]">{p}</span>)}
+                    </div>
                   </div>
                 )}
 
-                {/* Country info */}
+                {/* ── Q5: What's it like there? ── */}
                 {countryData && (
-                  <div className="mb-8 p-5 rounded-2xl bg-[var(--muted)]">
-                    <h2 className="text-sm font-bold text-[var(--foreground)] uppercase tracking-wider mb-3">
-                      Studying in {countryData.flag} {countryData.label}
-                    </h2>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div>
-                        <div className="text-[9px] text-[var(--muted-foreground)] uppercase mb-1">Total 4yr cost</div>
-                        <div className="text-sm font-bold" style={{ color: c }}>{countryData.budget.totalInr}</div>
+                  <div className="mb-8">
+                    <h2 className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider mb-3">🌍 Studying in {countryData.flag} {countryData.label}</h2>
+                    <div className="space-y-2">
+                      <div className="flex justify-between p-3 rounded-xl bg-[var(--muted)]">
+                        <span className="text-xs text-[var(--muted-foreground)]">Language needed</span>
+                        <span className="text-xs font-semibold text-[var(--foreground)]">{countryData.language}</span>
                       </div>
-                      <div>
-                        <div className="text-[9px] text-[var(--muted-foreground)] uppercase mb-1">Language</div>
-                        <div className="text-sm text-[var(--foreground)]">{countryData.language}</div>
+                      <div className="flex justify-between p-3 rounded-xl bg-[var(--muted)]">
+                        <span className="text-xs text-[var(--muted-foreground)]">Can they work while studying?</span>
+                        <span className="text-xs font-semibold text-[var(--foreground)]">Yes</span>
                       </div>
-                      <div>
-                        <div className="text-[9px] text-[var(--muted-foreground)] uppercase mb-1">Work visa after</div>
-                        <div className="text-sm text-[var(--foreground)]">{countryData.postStudyVisa}</div>
+                      <div className="flex justify-between p-3 rounded-xl bg-[var(--muted)]">
+                        <span className="text-xs text-[var(--muted-foreground)]">Stay after graduation?</span>
+                        <span className="text-xs font-semibold text-[var(--foreground)]">{countryData.postStudyVisa}</span>
                       </div>
                     </div>
                   </div>
                 )}
 
-                {/* Links */}
-                <div className="flex gap-3">
+                {/* ── Action buttons ── */}
+                <div className="flex gap-3 mt-10">
                   {uni.website && (
-                    <a href={uni.website} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl border-2 border-[var(--border)] text-sm font-bold text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors no-underline">
-                      <Globe size={16} /> Visit website
+                    <a href={uni.website} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl border-2 border-[var(--border)] text-sm font-bold text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors no-underline">
+                      <Globe size={15} /> Official website
                     </a>
                   )}
                   {uni.applyLink && (
-                    <a href={uni.applyLink} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold text-white no-underline" style={{ background: c }}>
-                      Apply now <ExternalLink size={14} />
+                    <a href={uni.applyLink} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold text-white no-underline" style={{ background: c }}>
+                      How to apply <ArrowRight size={14} />
                     </a>
                   )}
                 </div>
+
+                {/* Action plan nudge */}
+                {careerData && (
+                  <div className="mt-6 p-4 rounded-2xl bg-[var(--muted)] flex items-center gap-3 cursor-pointer" onClick={() => { setFullProfile(null); window.open(`/${career}/action-plan`, "_blank"); }}>
+                    <div className="text-xl">📋</div>
+                    <div>
+                      <div className="text-xs font-bold text-[var(--foreground)]">Want the step-by-step plan?</div>
+                      <div className="text-[10px] text-[var(--muted-foreground)]">See the month-by-month preparation roadmap for {careerData.title}</div>
+                    </div>
+                    <ArrowRight size={14} className="text-[var(--muted-foreground)] ml-auto flex-shrink-0" />
+                  </div>
+                )}
               </div>
             </motion.div>
           );
