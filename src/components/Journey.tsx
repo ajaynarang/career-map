@@ -325,12 +325,15 @@ export function Journey({ careers, getCountries, getExams, getUnis, actionPlans 
                     {exams.map(e => (
                       <div key={e.slug} className="rounded-xl border-2 border-[var(--border)] bg-[var(--card)] overflow-hidden">
                         <button onClick={() => setSelectedExam(selectedExam?.slug === e.slug ? null : e)}
-                          className="w-full text-left p-4 cursor-pointer flex items-center justify-between">
-                          <div>
+                          className="w-full text-left p-4 cursor-pointer">
+                          <div className="flex items-center justify-between mb-1">
                             <div className="text-sm font-bold text-[var(--foreground)]">{e.name}</div>
-                            <div className="text-[10px] text-[var(--muted-foreground)] mt-0.5">{e.when}</div>
+                            <ChevronDown size={14} className={`text-[var(--muted-foreground)] transition-transform ${selectedExam?.slug === e.slug ? "rotate-180" : ""}`} />
                           </div>
-                          <ChevronDown size={14} className={`text-[var(--muted-foreground)] transition-transform ${selectedExam?.slug === e.slug ? "rotate-180" : ""}`} />
+                          <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[10px]">
+                            <span className="text-[var(--muted-foreground)]">📅 {e.when.substring(0, 40)}</span>
+                            <span className="text-[var(--muted-foreground)]">💰 {e.fee}</span>
+                          </div>
                         </button>
                         <AnimatePresence>
                           {selectedExam?.slug === e.slug && (
