@@ -1,14 +1,27 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
-import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
-import {
-  Cpu, Atom, TrendingUp, Building2, Shield, Palette, Ship, Plane,
-  MapPin, DollarSign, Briefcase, GraduationCap, ExternalLink, Globe, X,
-  ChevronDown, ChevronLeft, ChevronRight, ArrowRight, Rocket, Star,
-  Award, Zap, BookOpen, Users, Clock,
-} from "lucide-react";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, MapPin, ArrowRight, ChevronRight, ExternalLink, Globe, Rocket } from "lucide-react";
 import Link from "next/link";
+import { useTheme } from "next-themes";
+import { Sun, Moon } from "lucide-react";
+
+function ThemeToggleInline() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+  return (
+    <button
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      className="w-9 h-9 rounded-full flex items-center justify-center bg-[var(--muted)] border border-[var(--border)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors cursor-pointer"
+      aria-label="Toggle theme"
+    >
+      {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
+    </button>
+  );
+}
 
 // ─── Types ───
 
@@ -17,43 +30,72 @@ interface CountryData { slug: string; label: string; flag: string; budget: { tot
 interface UniData { slug: string; name: string; location: string; ranking: string; feesInr: string; salary: string; acceptance: string; programs: string[]; recruiters: string[]; scholarships: string[]; website: string; applyLink: string }
 interface ExamData { slug: string; name: string; when: string; fee: string; eligibility: string; format: string; website: string }
 
-// ─── Constants ───
-
-const ICONS: Record<string, React.ComponentType<{ size?: number; className?: string; style?: React.CSSProperties }>> = {
-  engineering: Cpu, science: Atom, finance: TrendingUp, architecture: Building2,
-  defence: Shield, design: Palette, "merchant-navy": Ship, aviation: Plane,
-};
-
 const COLORS: Record<string, string> = {
   engineering: "#3B82F6", science: "#8B5CF6", finance: "#F59E0B", architecture: "#F97316",
   defence: "#10B981", design: "#EC4899", "merchant-navy": "#06B6D4", aviation: "#6366F1",
 };
 
-const GRADIENTS: Record<string, string> = {
-  engineering: "from-blue-950/80 via-zinc-950 to-zinc-950",
-  science: "from-purple-950/80 via-zinc-950 to-zinc-950",
-  finance: "from-amber-950/80 via-zinc-950 to-zinc-950",
-  architecture: "from-orange-950/80 via-zinc-950 to-zinc-950",
-  defence: "from-emerald-950/80 via-zinc-950 to-zinc-950",
-  design: "from-pink-950/80 via-zinc-950 to-zinc-950",
-  "merchant-navy": "from-cyan-950/80 via-zinc-950 to-zinc-950",
-  aviation: "from-indigo-950/80 via-zinc-950 to-zinc-950",
+const EMOJIS: Record<string, string> = {
+  engineering: "⚙️", science: "🔬", finance: "📈", architecture: "🏛️",
+  defence: "🛡️", design: "🎨", "merchant-navy": "🚢", aviation: "✈️",
 };
 
-const TAGLINES: Record<string, string> = {
-  engineering: "The path that opens every door",
-  science: "For the deeply curious",
-  finance: "Where numbers become power",
-  architecture: "Shape the world we live in",
-  defence: "Serve with honor and pride",
-  design: "Make the world more beautiful",
-  "merchant-navy": "The world is your office",
-  aviation: "The office above the clouds",
-};
+// ─── Marble ───
 
-// ─── Side Sheet ───
+function Marble({ size, color, children, onClick, active, glow, delay = 0, className = "" }: {
+  size: number; color: string; children: React.ReactNode; onClick: () => void;
+  active?: boolean; glow?: boolean; delay?: number; className?: string;
+}) {
+  return (
+    <motion.button
+      initial={{ scale: 0, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      exit={{ scale: 0, opacity: 0 }}
+      transition={{ type: "spring", stiffness: 250, damping: 22, delay }}
+      whileHover={{ scale: 1.12 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={onClick}
+      className={`rounded-full flex flex-col items-center justify-center cursor-pointer relative ${className}`}
+      style={{
+        width: size, height: size,
+        background: `radial-gradient(circle at 35% 30%, ${color}90 0%, ${color}40 40%, ${color}15 70%, rgba(0,0,0,0.3) 100%)`,
+        border: `2px solid ${active ? color : `${color}50`}`,
+        boxShadow: glow || active
+          ? `0 0 ${size * 0.4}px ${color}40, 0 0 ${size * 0.8}px ${color}15, inset 0 -${size * 0.1}px ${size * 0.3}px rgba(0,0,0,0.3)`
+          : `0 0 ${size * 0.2}px ${color}20, inset 0 -${size * 0.1}px ${size * 0.3}px rgba(0,0,0,0.3)`,
+      }}
+    >
+      {/* Glass highlight */}
+      <div className="absolute rounded-full bg-white/25 blur-[1px]" style={{ top: "12%", left: "18%", width: "35%", height: "22%" }} />
+      {children}
+    </motion.button>
+  );
+}
 
-function SideSheet({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
+// ─── Popover ───
+
+function InfoPopover({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9, y: 8 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.9, y: 8 }}
+      className="absolute z-40 mt-2"
+      style={{ left: "50%", transform: "translateX(-50%)" }}
+    >
+      <div className="bg-[var(--card)] backdrop-blur-xl border border-[var(--border)] rounded-2xl p-4 shadow-2xl min-w-[220px] max-w-[280px]">
+        {children}
+      </div>
+      <button onClick={onClose} className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center cursor-pointer hover:bg-zinc-700">
+        <X size={10} className="text-[var(--muted-foreground)]" />
+      </button>
+    </motion.div>
+  );
+}
+
+// ─── Sheet ───
+
+function Sheet({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -73,12 +115,12 @@ function SideSheet({ open, onClose, children }: { open: boolean; onClose: () => 
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 250 }}
-            className="fixed right-0 top-0 bottom-0 w-[min(600px,96vw)] bg-zinc-950 overflow-y-auto z-50 shadow-[-30px_0_80px_rgba(0,0,0,0.5)]"
+            className="fixed right-0 top-0 bottom-0 w-[min(520px,94vw)] bg-[var(--background)] overflow-y-auto z-50 shadow-[-20px_0_60px_rgba(0,0,0,0.5)]"
           >
-            <button onClick={onClose} className="sticky top-0 right-0 z-10 float-right m-5 w-10 h-10 flex items-center justify-center rounded-full bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 transition-all cursor-pointer hover:rotate-90 duration-300">
-              <X size={16} className="text-zinc-400" />
+            <button onClick={onClose} className="sticky top-0 right-0 z-10 float-right m-4 w-9 h-9 flex items-center justify-center rounded-full bg-[var(--muted)] border border-[var(--border)] hover:bg-zinc-800 cursor-pointer hover:rotate-90 transition-all duration-300">
+              <X size={14} className="text-[var(--muted-foreground)]" />
             </button>
-            <div className="p-8 pt-4 clear-both">{children}</div>
+            <div className="p-7 pt-3 clear-both">{children}</div>
           </motion.div>
         </>
       )}
@@ -86,89 +128,52 @@ function SideSheet({ open, onClose, children }: { open: boolean; onClose: () => 
   );
 }
 
-// ─── University Magazine Profile ───
+// ─── Canvas Layout Engine ───
 
-function UniProfile({ uni, careerSlug, countrySlug, color }: { uni: UniData; careerSlug: string; countrySlug: string; color: string }) {
-  return (
-    <div>
-      <div className="rounded-3xl p-8 mb-8 relative overflow-hidden" style={{ background: `linear-gradient(160deg, ${color}12 0%, rgba(9,9,11,1) 100%)` }}>
-        <div className="absolute top-0 right-0 w-48 h-48 rounded-full blur-[80px] opacity-20" style={{ background: color }} />
-        <div className="relative">
-          <div className="text-[10px] font-mono uppercase tracking-[4px] mb-3" style={{ color }}>{uni.ranking}</div>
-          <h2 className="text-3xl font-bold text-white mb-2 leading-tight">{uni.name}</h2>
-          <div className="flex items-center gap-2 text-sm text-zinc-400">
-            <MapPin size={14} /> {uni.location}
-          </div>
-        </div>
-      </div>
+function useCanvasLayout(containerRef: React.RefObject<HTMLDivElement | null>) {
+  const [dims, setDims] = useState({ w: 1200, h: 700 });
 
-      <div className="grid grid-cols-3 gap-3 mb-8">
-        {[
-          { icon: DollarSign, label: "Cost per year", value: uni.feesInr, accent: color },
-          { icon: Zap, label: "Starting salary", value: uni.salary, accent: "#10B981" },
-          { icon: Award, label: "Getting in", value: uni.acceptance, accent: "#F59E0B" },
-        ].map((s) => (
-          <div key={s.label} className="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800/50 text-center">
-            <s.icon size={18} style={{ color: s.accent }} className="mx-auto mb-2" />
-            <div className="text-sm font-bold text-white leading-tight mb-1">{s.value}</div>
-            <div className="text-[9px] text-zinc-500 uppercase tracking-wider">{s.label}</div>
-          </div>
-        ))}
-      </div>
+  useEffect(() => {
+    const update = () => {
+      if (containerRef.current) {
+        setDims({ w: containerRef.current.offsetWidth, h: containerRef.current.offsetHeight });
+      }
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [containerRef]);
 
-      {uni.programs.length > 0 && (
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <BookOpen size={14} style={{ color }} />
-            <span className="text-[11px] font-bold text-white uppercase tracking-wider">What you&apos;ll study</span>
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {uni.programs.map((p) => <span key={p} className="text-[11px] px-3 py-1.5 rounded-full border border-zinc-800 text-zinc-300">{p}</span>)}
-          </div>
-        </div>
-      )}
+  const cx = dims.w / 2;
+  const cy = dims.h / 2;
+  const r = Math.min(cx, cy);
 
-      {uni.recruiters.length > 0 && (
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <Users size={14} style={{ color }} />
-            <span className="text-[11px] font-bold text-white uppercase tracking-wider">Who hires from here</span>
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {uni.recruiters.map((r) => <span key={r} className="text-[11px] px-3 py-1.5 rounded-full bg-zinc-900 text-zinc-400">{r}</span>)}
-          </div>
-        </div>
-      )}
+  return {
+    cx, cy,
+    careerOrbit: r * 0.6,
+    countryOrbit: r * 0.42,
+    uniOrbit: r * 0.32,
+    centerSize: Math.max(80, r * 0.14),
+    careerSize: Math.max(65, r * 0.11),
+    countrySize: Math.max(55, r * 0.09),
+    uniSize: Math.max(45, r * 0.075),
+  };
+}
 
-      {uni.scholarships.length > 0 && (
-        <div className="mb-8 p-5 rounded-2xl bg-emerald-500/5 border border-emerald-500/10">
-          <div className="flex items-center gap-2 mb-3">
-            <Star size={14} className="text-emerald-400" />
-            <span className="text-[11px] font-bold text-white uppercase tracking-wider">Scholarships</span>
-          </div>
-          <ul className="space-y-2">
-            {uni.scholarships.map((s) => <li key={s} className="text-xs text-zinc-300 leading-relaxed flex gap-2"><span className="text-emerald-400 flex-shrink-0">•</span>{s}</li>)}
-          </ul>
-        </div>
-      )}
+function radialPos(cx: number, cy: number, radius: number, index: number, total: number, offsetAngle = -Math.PI / 2) {
+  const angle = offsetAngle + (index / total) * Math.PI * 2;
+  return { x: cx + Math.cos(angle) * radius, y: cy + Math.sin(angle) * radius, angle };
+}
 
-      <div className="flex gap-3">
-        <Link href={`/${careerSlug}/${countrySlug}/${uni.slug}`} className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-sm font-bold no-underline text-white hover:shadow-lg transition-all" style={{ background: `linear-gradient(135deg, ${color} 0%, ${color}bb 100%)`, boxShadow: `0 8px 30px ${color}25` }}>
-          Read Full Story <ArrowRight size={14} />
-        </Link>
-        {uni.website && (
-          <a href={uni.website} target="_blank" rel="noopener noreferrer" className="w-14 h-14 rounded-2xl border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-600 transition-all no-underline">
-            <Globe size={18} />
-          </a>
-        )}
-      </div>
-    </div>
-  );
+function fanPos(anchorX: number, anchorY: number, awayAngle: number, radius: number, index: number, total: number, spread = Math.PI * 0.8) {
+  const startAngle = awayAngle - spread / 2;
+  const angle = total === 1 ? awayAngle : startAngle + (index / (total - 1)) * spread;
+  return { x: anchorX + Math.cos(angle) * radius, y: anchorY + Math.sin(angle) * radius, angle };
 }
 
 // ─── Main Journey ───
 
-interface JourneyProps {
+export interface JourneyProps {
   careers: CareerData[];
   getCountries: (slug: string) => CountryData[];
   getExams: (careerSlug: string, countrySlug: string) => ExamData[];
@@ -176,416 +181,347 @@ interface JourneyProps {
 }
 
 export function Journey({ careers, getCountries, getExams, getUnis }: JourneyProps) {
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [phase, setPhase] = useState<"careers" | "countries" | "details">("careers");
-  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
-  const [selectedUni, setSelectedUni] = useState<UniData | null>(null);
-  const [expandedExam, setExpandedExam] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const layout = useCanvasLayout(containerRef);
 
-  const career = careers[currentIdx];
-  const color = COLORS[career?.slug] || "#3B82F6";
-  const gradient = GRADIENTS[career?.slug] || GRADIENTS.engineering;
-  const tagline = TAGLINES[career?.slug] || "";
-  const Icon = ICONS[career?.slug] || Cpu;
-  const countries = career ? getCountries(career.slug) : [];
-  const country = countries.find((c) => c.slug === selectedCountry);
-  const exams = career && selectedCountry ? getExams(career.slug, selectedCountry) : [];
-  const unis = career && selectedCountry ? getUnis(career.slug, selectedCountry) : [];
+  const [activeCareer, setActiveCareer] = useState<string | null>(null);
+  const [activeCountry, setActiveCountry] = useState<string | null>(null);
+  const [popover, setPopover] = useState<{ type: "career" | "country"; data: CareerData | CountryData } | null>(null);
+  const [sheetUni, setSheetUni] = useState<UniData | null>(null);
+  const [sheetCareer, setSheetCareer] = useState<string | null>(null);
+  const [sheetCountry, setSheetCountry] = useState<string | null>(null);
 
-  const prev = useCallback(() => {
-    if (phase === "details") { setPhase("countries"); setSelectedCountry(null); setExpandedExam(null); }
-    else if (phase === "countries") { setPhase("careers"); }
-    else { setCurrentIdx((i) => (i - 1 + careers.length) % careers.length); }
-  }, [phase, careers.length]);
+  const color = activeCareer ? COLORS[activeCareer] || "#3B82F6" : "#3B82F6";
+  const countries = activeCareer ? getCountries(activeCareer) : [];
+  const unis = activeCareer && activeCountry ? getUnis(activeCareer, activeCountry) : [];
+  const exams = activeCareer && activeCountry ? getExams(activeCareer, activeCountry) : [];
 
-  const next = useCallback(() => {
-    if (phase === "careers") { setCurrentIdx((i) => (i + 1) % careers.length); }
-  }, [phase, careers.length]);
+  const handleReset = useCallback(() => {
+    setActiveCareer(null);
+    setActiveCountry(null);
+    setPopover(null);
+  }, []);
 
-  const selectCareer = () => {
-    setPhase("countries");
-    setSelectedCountry(null);
-  };
+  const handleCareerClick = useCallback((slug: string) => {
+    if (activeCareer === slug) {
+      // Show popover with career info
+      const career = careers.find(c => c.slug === slug);
+      if (career) setPopover({ type: "career", data: career });
+    } else {
+      setActiveCareer(slug);
+      setActiveCountry(null);
+      setPopover(null);
+    }
+  }, [activeCareer, careers]);
 
-  const selectCountry = (slug: string) => {
-    setSelectedCountry(slug);
-    setPhase("details");
-    setExpandedExam(null);
-  };
+  const handleCountryClick = useCallback((slug: string) => {
+    if (activeCountry === slug) {
+      const country = countries.find(c => c.slug === slug);
+      if (country) setPopover({ type: "country", data: country });
+    } else {
+      setActiveCountry(slug);
+      setPopover(null);
+    }
+  }, [activeCountry, countries]);
 
-  // Keyboard nav
+  const handleUniClick = useCallback((uni: UniData) => {
+    setSheetUni(uni);
+    setSheetCareer(activeCareer);
+    setSheetCountry(activeCountry);
+  }, [activeCareer, activeCountry]);
+
+  // Escape to go back
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight" || e.key === "ArrowDown") next();
-      if (e.key === "ArrowLeft" || e.key === "ArrowUp") prev();
-      if (e.key === "Enter" && phase === "careers") selectCareer();
-      if (e.key === "Escape") prev();
+      if (e.key === "Escape") {
+        if (popover) setPopover(null);
+        else if (activeCountry) setActiveCountry(null);
+        else if (activeCareer) setActiveCareer(null);
+      }
     };
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
-  }, [next, prev, phase]);
+  }, [popover, activeCareer, activeCountry]);
+
+  // Career positions
+  const careerPositions = careers.map((_, i) => radialPos(layout.cx, layout.cy, layout.careerOrbit, i, careers.length));
+
+  // Active career index & position
+  const activeCareerIdx = careers.findIndex(c => c.slug === activeCareer);
+  const activeCareerPos = activeCareerIdx >= 0 ? careerPositions[activeCareerIdx] : null;
+
+  // Country positions (fan out from active career)
+  const countryPositions = activeCareerPos
+    ? countries.map((_, i) => fanPos(activeCareerPos.x, activeCareerPos.y, activeCareerPos.angle, layout.countryOrbit, i, countries.length))
+    : [];
+
+  // Active country index & position
+  const activeCountryIdx = countries.findIndex(c => c.slug === activeCountry);
+  const activeCountryPos = activeCountryIdx >= 0 ? countryPositions[activeCountryIdx] : null;
+
+  // Uni positions
+  const uniPositions = activeCountryPos
+    ? unis.map((_, i) => fanPos(activeCountryPos.x, activeCountryPos.y, activeCountryPos.angle, layout.uniOrbit, i, unis.length, Math.PI * 1.2))
+    : [];
 
   return (
-    <div className={`min-h-screen bg-gradient-to-b ${gradient} text-white transition-all duration-700 relative overflow-hidden`}>
-      {/* Ambient glow */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full blur-[120px] opacity-[0.07] transition-colors duration-700" style={{ background: color }} />
-        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] rounded-full blur-[100px] opacity-[0.04] transition-colors duration-700" style={{ background: color }} />
+    <>
+      <div ref={containerRef} className="w-full relative overflow-hidden" style={{ height: "100vh", background: "var(--background)" }}>
+        {/* Dot grid */}
+        <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.025) 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
+
+        {/* Ambient glow */}
+        <div className="absolute inset-0 pointer-events-none">
+          <motion.div
+            animate={{ background: `radial-gradient(circle at ${layout.cx}px ${layout.cy}px, ${color}08 0%, transparent 50%)` }}
+            transition={{ duration: 0.7 }}
+            className="absolute inset-0"
+          />
+        </div>
+
+        {/* SVG connections */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none z-10">
+          <defs>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="2" result="blur" />
+              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+          </defs>
+          <AnimatePresence>
+            {/* Center → Careers */}
+            {!activeCareer && careers.map((c, i) => {
+              const pos = careerPositions[i];
+              return (
+                <motion.line key={`cc-${c.slug}`} x1={layout.cx} y1={layout.cy} x2={pos.x} y2={pos.y}
+                  initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 0.2 }} exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4, delay: i * 0.03 }}
+                  stroke={COLORS[c.slug]} strokeWidth={1.5} strokeDasharray="5 4" filter="url(#glow)" />
+              );
+            })}
+
+            {/* Active career → center */}
+            {activeCareer && activeCareerPos && (
+              <motion.line key="active-center" x1={layout.cx} y1={layout.cy} x2={activeCareerPos.x} y2={activeCareerPos.y}
+                initial={{ opacity: 0 }} animate={{ opacity: 0.35 }} exit={{ opacity: 0 }}
+                stroke={color} strokeWidth={2} strokeDasharray="6 4" filter="url(#glow)" />
+            )}
+
+            {/* Career → Countries */}
+            {activeCareer && !activeCountry && countries.map((c, i) => {
+              const pos = countryPositions[i];
+              return activeCareerPos ? (
+                <motion.line key={`co-${c.slug}`} x1={activeCareerPos.x} y1={activeCareerPos.y} x2={pos.x} y2={pos.y}
+                  initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 0.2 }} exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4, delay: i * 0.04 }}
+                  stroke={color} strokeWidth={1} strokeDasharray="4 3" filter="url(#glow)" />
+              ) : null;
+            })}
+
+            {/* Active country → career */}
+            {activeCountry && activeCareerPos && activeCountryPos && (
+              <motion.line key="active-country-line" x1={activeCareerPos.x} y1={activeCareerPos.y} x2={activeCountryPos.x} y2={activeCountryPos.y}
+                initial={{ opacity: 0 }} animate={{ opacity: 0.3 }} exit={{ opacity: 0 }}
+                stroke={color} strokeWidth={1.5} strokeDasharray="5 3" filter="url(#glow)" />
+            )}
+
+            {/* Country → Unis */}
+            {activeCountry && unis.map((u, i) => {
+              const pos = uniPositions[i];
+              return activeCountryPos ? (
+                <motion.line key={`u-${u.slug}`} x1={activeCountryPos.x} y1={activeCountryPos.y} x2={pos.x} y2={pos.y}
+                  initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 0.15 }} exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3, delay: i * 0.03 }}
+                  stroke={color} strokeWidth={1} strokeDasharray="3 3" />
+              ) : null;
+            })}
+          </AnimatePresence>
+        </svg>
+
+        {/* Marble layer */}
+        <div className="absolute inset-0 z-20">
+          {/* Center "You" */}
+          <div className="absolute" style={{ left: layout.cx, top: layout.cy, transform: "translate(-50%, -50%)" }}>
+            <Marble size={layout.centerSize} color="#3B82F6" glow onClick={handleReset}>
+              <span className="text-xs font-bold text-[var(--foreground)] drop-shadow-lg">{activeCareer ? "↩" : "You"}</span>
+            </Marble>
+          </div>
+
+          <AnimatePresence>
+            {/* Career marbles */}
+            {!activeCareer && careers.map((c, i) => {
+              const pos = careerPositions[i];
+              return (
+                <div key={c.slug} className="absolute" style={{ left: pos.x, top: pos.y, transform: "translate(-50%, -50%)" }}>
+                  <Marble size={layout.careerSize} color={COLORS[c.slug]} onClick={() => handleCareerClick(c.slug)} delay={i * 0.04}>
+                    <span className="text-base drop-shadow-lg">{EMOJIS[c.slug]}</span>
+                    <span className="text-[8px] font-bold text-[var(--foreground)] mt-0.5 drop-shadow-lg leading-tight text-center px-1">{c.title.split(" ")[0]}</span>
+                  </Marble>
+                </div>
+              );
+            })}
+
+            {/* Active career marble */}
+            {activeCareer && activeCareerPos && (
+              <div key={`active-${activeCareer}`} className="absolute" style={{ left: activeCareerPos.x, top: activeCareerPos.y, transform: "translate(-50%, -50%)" }}>
+                <div className="relative">
+                  <Marble size={layout.careerSize + 10} color={color} active onClick={() => handleCareerClick(activeCareer)}>
+                    <span className="text-lg drop-shadow-lg">{EMOJIS[activeCareer]}</span>
+                    <span className="text-[8px] font-bold text-[var(--foreground)] mt-0.5 drop-shadow-lg">{careers[activeCareerIdx]?.title.split(" ")[0]}</span>
+                  </Marble>
+
+                  {/* Career popover */}
+                  <AnimatePresence>
+                    {popover?.type === "career" && (
+                      <InfoPopover onClose={() => setPopover(null)}>
+                        <h3 className="text-sm font-bold text-[var(--foreground)] mb-1">{(popover.data as CareerData).title}</h3>
+                        <p className="text-[11px] text-[var(--muted-foreground)] leading-relaxed mb-3">{(popover.data as CareerData).whyChoose}</p>
+                        <Link href={`/${activeCareer}/action-plan`} className="flex items-center gap-1.5 text-[11px] font-bold no-underline" style={{ color }}>
+                          <Rocket size={12} /> Action Plan <ChevronRight size={12} />
+                        </Link>
+                      </InfoPopover>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            )}
+
+            {/* Country marbles */}
+            {activeCareer && !activeCountry && countries.map((c, i) => {
+              const pos = countryPositions[i];
+              return (
+                <div key={`co-${c.slug}`} className="absolute" style={{ left: pos.x, top: pos.y, transform: "translate(-50%, -50%)" }}>
+                  <Marble size={layout.countrySize} color={color} onClick={() => handleCountryClick(c.slug)} delay={i * 0.05}>
+                    <span className="text-lg drop-shadow-lg">{c.flag}</span>
+                    <span className="text-[7px] font-bold text-[var(--foreground)] mt-0.5 drop-shadow-lg">{c.label}</span>
+                  </Marble>
+                </div>
+              );
+            })}
+
+            {/* Active country marble */}
+            {activeCountry && activeCountryPos && (
+              <div key={`active-co-${activeCountry}`} className="absolute" style={{ left: activeCountryPos.x, top: activeCountryPos.y, transform: "translate(-50%, -50%)" }}>
+                <div className="relative">
+                  <Marble size={layout.countrySize + 8} color={color} active onClick={() => handleCountryClick(activeCountry)}>
+                    <span className="text-lg drop-shadow-lg">{countries[activeCountryIdx]?.flag}</span>
+                    <span className="text-[7px] font-bold text-[var(--foreground)] mt-0.5 drop-shadow-lg">{countries[activeCountryIdx]?.label}</span>
+                  </Marble>
+
+                  {/* Country popover */}
+                  <AnimatePresence>
+                    {popover?.type === "country" && (
+                      <InfoPopover onClose={() => setPopover(null)}>
+                        <div className="text-lg mb-1">{(popover.data as CountryData).flag}</div>
+                        <h3 className="text-sm font-bold text-[var(--foreground)] mb-2">{(popover.data as CountryData).label}</h3>
+                        <div className="space-y-1.5 mb-3">
+                          <div className="flex justify-between text-[11px]"><span className="text-zinc-500">Total cost</span><span className="font-bold" style={{ color }}>{(popover.data as CountryData).budget.totalInr}</span></div>
+                          <div className="flex justify-between text-[11px]"><span className="text-zinc-500">Language</span><span className="text-[var(--foreground)]">{(popover.data as CountryData).language}</span></div>
+                          <div className="flex justify-between text-[11px]"><span className="text-zinc-500">Work visa</span><span className="text-[var(--foreground)]">{(popover.data as CountryData).postStudyVisa}</span></div>
+                        </div>
+                        {exams.length > 0 && (
+                          <div className="border-t border-zinc-800 pt-2 mt-2">
+                            <div className="text-[9px] text-zinc-600 uppercase tracking-wider mb-1">Exams needed</div>
+                            {exams.map(e => (
+                              <div key={e.slug} className="flex items-center justify-between text-[11px] py-0.5">
+                                <span className="text-[var(--foreground)]">{e.name}</span>
+                                {e.website && <a href={e.website} target="_blank" rel="noopener noreferrer" className="no-underline" style={{ color }}><ExternalLink size={10} /></a>}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </InfoPopover>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            )}
+
+            {/* University marbles */}
+            {activeCountry && unis.map((u, i) => {
+              const pos = uniPositions[i];
+              const shortName = u.name.length > 10 ? u.name.replace(/University of |University |Institute of /g, "").substring(0, 10) : u.name;
+              return (
+                <div key={`uni-${u.slug}`} className="absolute" style={{ left: pos.x, top: pos.y, transform: "translate(-50%, -50%)" }}>
+                  <Marble size={layout.uniSize} color={color} onClick={() => handleUniClick(u)} delay={i * 0.04}>
+                    <span className="text-[7px] font-bold text-[var(--foreground)] drop-shadow-lg text-center px-1 leading-tight">{shortName}</span>
+                    <span className="text-[6px] text-[var(--foreground)]/60 mt-0.5">{u.feesInr}</span>
+                  </Marble>
+                </div>
+              );
+            })}
+          </AnimatePresence>
+        </div>
+
+        {/* Theme toggle */}
+        <div className="absolute top-4 right-4 z-30">
+          <ThemeToggleInline />
+        </div>
+
+        {/* Hint */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
+          <p className="text-[9px] text-zinc-700 font-mono uppercase tracking-[3px]">
+            {!activeCareer ? "tap a marble to begin" : !activeCountry ? "choose a country · tap career marble for info" : "tap university for details · tap country for info"}
+          </p>
+        </div>
       </div>
 
-      {/* Nav dots (right side) */}
-      {phase === "careers" && (
-        <div className="fixed right-6 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-2">
-          {careers.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrentIdx(i)}
-              className="cursor-pointer transition-all duration-300 rounded-full"
-              style={{
-                width: 8,
-                height: i === currentIdx ? 28 : 8,
-                background: i === currentIdx ? color : "rgba(255,255,255,0.15)",
-              }}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* ═══ CAREER SPREAD ═══ */}
-      <AnimatePresence mode="wait">
-        {phase === "careers" && (
-          <motion.div
-            key={`career-${currentIdx}`}
-            initial={{ opacity: 0, x: 60 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -60 }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="min-h-screen flex items-center relative z-10"
-          >
-            <div className="max-w-6xl mx-auto px-8 md:px-16 w-full">
-              <div className="grid md:grid-cols-2 gap-12 items-center">
-                {/* Left: Content */}
-                <div>
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="text-[10px] font-mono uppercase tracking-[5px] mb-6"
-                    style={{ color }}
-                  >
-                    {String(currentIdx + 1).padStart(2, "0")} / {String(careers.length).padStart(2, "0")}
-                  </motion.div>
-
-                  <motion.h1
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[0.9] mb-4 tracking-tight"
-                  >
-                    {career.title}
-                  </motion.h1>
-
-                  <motion.p
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 }}
-                    className="text-xl md:text-2xl font-light mb-6"
-                    style={{ color }}
-                  >
-                    {tagline}
-                  </motion.p>
-
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                    className="text-zinc-400 text-sm leading-relaxed mb-10 max-w-md"
-                  >
-                    {career.description}
-                  </motion.p>
-
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 }}
-                    className="flex gap-3"
-                  >
-                    <button
-                      onClick={selectCareer}
-                      className="px-8 py-4 rounded-2xl text-sm font-bold cursor-pointer transition-all hover:shadow-lg group flex items-center gap-2"
-                      style={{ background: color, boxShadow: `0 10px 40px ${color}30` }}
-                    >
-                      Explore this path
-                      <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                    </button>
-                    <Link
-                      href={`/${career.slug}/action-plan`}
-                      className="px-6 py-4 rounded-2xl text-sm font-medium border border-zinc-800 hover:border-zinc-600 transition-colors no-underline text-zinc-300 hover:text-white"
-                    >
-                      Action plan
-                    </Link>
-                  </motion.div>
-                </div>
-
-                {/* Right: Large icon + stats */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.4 }}
-                  className="hidden md:flex flex-col items-center justify-center"
-                >
-                  <div className="w-48 h-48 rounded-[40px] flex items-center justify-center mb-8" style={{ background: `${color}08`, border: `1px solid ${color}12`, boxShadow: `0 0 80px ${color}08` }}>
-                    <Icon size={80} style={{ color, opacity: 0.6 }} />
-                  </div>
-
-                  {/* Quick stats */}
-                  <div className="text-center space-y-2">
-                    <div className="text-[10px] text-zinc-600 uppercase tracking-wider">Available in</div>
-                    <div className="text-sm text-zinc-400">{countries.length} countries</div>
-                  </div>
-                </motion.div>
-              </div>
+      {/* University Sheet */}
+      <Sheet open={!!sheetUni} onClose={() => setSheetUni(null)}>
+        {sheetUni && sheetCareer && sheetCountry && (
+          <div>
+            <div className="rounded-2xl p-6 mb-6" style={{ background: `linear-gradient(160deg, ${COLORS[sheetCareer]}15 0%, transparent 100%)` }}>
+              <div className="text-[9px] font-mono uppercase tracking-[4px] mb-2" style={{ color: COLORS[sheetCareer] }}>{sheetUni.ranking}</div>
+              <h2 className="text-2xl font-bold text-[var(--foreground)] mb-1">{sheetUni.name}</h2>
+              <div className="flex items-center gap-1.5 text-sm text-[var(--muted-foreground)]"><MapPin size={13} /> {sheetUni.location}</div>
             </div>
-          </motion.div>
-        )}
 
-        {/* ═══ COUNTRY SELECTION ═══ */}
-        {phase === "countries" && (
-          <motion.div
-            key="countries"
-            initial={{ opacity: 0, x: 60 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -60 }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="min-h-screen flex items-center relative z-10"
-          >
-            <div className="max-w-6xl mx-auto px-8 md:px-16 w-full py-20">
-              <button onClick={prev} className="flex items-center gap-2 text-sm text-zinc-500 hover:text-white mb-8 cursor-pointer transition-colors">
-                <ChevronLeft size={16} /> Back to careers
-              </button>
-
-              <div className="mb-10">
-                <div className="text-[10px] font-mono uppercase tracking-[4px] mb-3" style={{ color }}>
-                  {career.title}
+            <div className="grid grid-cols-3 gap-2 mb-6">
+              {[
+                { label: "Cost/yr", value: sheetUni.feesInr, color: COLORS[sheetCareer] },
+                { label: "Salary", value: sheetUni.salary, color: "#10B981" },
+                { label: "Acceptance", value: sheetUni.acceptance, color: "#F59E0B" },
+              ].map(s => (
+                <div key={s.label} className="p-3 rounded-xl bg-[var(--muted)] border border-[var(--border)] text-center">
+                  <div className="text-sm font-bold mb-0.5" style={{ color: s.color }}>{s.value}</div>
+                  <div className="text-[8px] text-zinc-600 uppercase tracking-wider">{s.label}</div>
                 </div>
-                <h2 className="text-4xl md:text-5xl font-bold mb-3">Where will you go?</h2>
-                <p className="text-zinc-500 max-w-md">Each destination has a different cost, culture, and opportunity. Pick the one that fits your dream.</p>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {countries.map((c, i) => (
-                  <motion.button
-                    key={c.slug}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.06 }}
-                    whileHover={{ y: -6, boxShadow: `0 20px 40px ${color}12` }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => selectCountry(c.slug)}
-                    className="p-6 rounded-3xl text-left cursor-pointer relative overflow-hidden group bg-zinc-900/50 border border-zinc-800/50 hover:border-zinc-700 transition-all"
-                  >
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: `radial-gradient(circle at 30% 30%, ${color}08 0%, transparent 70%)` }} />
-                    <div className="relative">
-                      <div className="text-4xl mb-4 group-hover:scale-125 transition-transform duration-500 inline-block">{c.flag}</div>
-                      <h3 className="text-lg font-bold text-white mb-1">{c.label}</h3>
-                      <div className="text-xl font-bold mb-4" style={{ color }}>{c.budget.totalInr}</div>
-                      <div className="space-y-1.5">
-                        <div className="text-[11px] text-zinc-500 flex items-center gap-2">
-                          <Globe size={11} className="flex-shrink-0" /> {c.language}
-                        </div>
-                        <div className="text-[11px] text-zinc-500 flex items-center gap-2">
-                          <Clock size={11} className="flex-shrink-0" /> {c.postStudyVisa}
-                        </div>
-                      </div>
-                    </div>
-                  </motion.button>
-                ))}
-              </div>
+              ))}
             </div>
-          </motion.div>
-        )}
 
-        {/* ═══ COUNTRY DETAILS (Exams + Universities) ═══ */}
-        {phase === "details" && country && (
-          <motion.div
-            key="details"
-            initial={{ opacity: 0, x: 60 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -60 }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="relative z-10"
-          >
-            <div className="max-w-5xl mx-auto px-8 md:px-16 py-20">
-              <button onClick={prev} className="flex items-center gap-2 text-sm text-zinc-500 hover:text-white mb-8 cursor-pointer transition-colors">
-                <ChevronLeft size={16} /> Back to countries
-              </button>
-
-              {/* Country header */}
-              <div className="mb-12">
-                <div className="text-[10px] font-mono uppercase tracking-[4px] mb-3" style={{ color }}>
-                  {career.title} → {country.flag} {country.label}
-                </div>
-                <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                  Study in {country.label}
-                </h2>
-
-                {/* Budget bar */}
-                <div className="flex items-center gap-6 p-5 rounded-2xl bg-zinc-900/50 border border-zinc-800/50 mb-4">
-                  <div>
-                    <div className="text-[9px] text-zinc-600 uppercase tracking-wider mb-1">Total 4-year cost</div>
-                    <div className="text-2xl font-bold" style={{ color }}>{country.budget.totalInr}</div>
-                  </div>
-                  <div className="w-px h-10 bg-zinc-800" />
-                  <div>
-                    <div className="text-[9px] text-zinc-600 uppercase tracking-wider mb-1">Language</div>
-                    <div className="text-sm text-zinc-300">{country.language}</div>
-                  </div>
-                  <div className="w-px h-10 bg-zinc-800" />
-                  <div>
-                    <div className="text-[9px] text-zinc-600 uppercase tracking-wider mb-1">Work visa after</div>
-                    <div className="text-sm text-zinc-300">{country.postStudyVisa}</div>
-                  </div>
-                </div>
+            {sheetUni.programs.length > 0 && (
+              <div className="mb-5">
+                <div className="text-[9px] text-zinc-600 uppercase tracking-wider mb-2">Programs</div>
+                <div className="flex flex-wrap gap-1">{sheetUni.programs.map(p => <span key={p} className="text-[10px] px-2.5 py-1 rounded-full border border-zinc-800 text-[var(--foreground)]">{p}</span>)}</div>
               </div>
+            )}
 
-              {/* Exams */}
-              {exams.length > 0 && (
-                <div className="mb-12">
-                  <div className="flex items-center gap-3 mb-5">
-                    <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: `${color}15` }}>
-                      <GraduationCap size={16} style={{ color }} />
-                    </div>
-                    <h3 className="text-lg font-bold">Entrance Exams</h3>
-                  </div>
-                  <div className="space-y-2">
-                    {exams.map((exam) => (
-                      <div key={exam.slug} className="rounded-2xl bg-zinc-900/50 border border-zinc-800/50 overflow-hidden hover:border-zinc-700 transition-colors">
-                        <button
-                          onClick={() => setExpandedExam(expandedExam === exam.slug ? null : exam.slug)}
-                          aria-expanded={expandedExam === exam.slug}
-                          className="w-full flex items-center justify-between p-5 text-left cursor-pointer"
-                        >
-                          <div>
-                            <div className="text-sm font-bold text-white">{exam.name}</div>
-                            <div className="text-xs text-zinc-500 mt-0.5">{exam.when}</div>
-                          </div>
-                          <motion.div animate={{ rotate: expandedExam === exam.slug ? 180 : 0 }}>
-                            <ChevronDown size={16} className="text-zinc-600" />
-                          </motion.div>
-                        </button>
-                        <AnimatePresence>
-                          {expandedExam === exam.slug && (
-                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                              <div className="px-5 pb-5 border-t border-zinc-800/50 pt-4 space-y-3">
-                                <div className="grid grid-cols-2 gap-2">
-                                  <div className="p-3 rounded-xl bg-zinc-800/50">
-                                    <div className="text-[9px] text-zinc-600 uppercase tracking-wider mb-1">Fee</div>
-                                    <div className="text-xs font-semibold text-zinc-200">{exam.fee}</div>
-                                  </div>
-                                  <div className="p-3 rounded-xl bg-zinc-800/50">
-                                    <div className="text-[9px] text-zinc-600 uppercase tracking-wider mb-1">Format</div>
-                                    <div className="text-xs font-semibold text-zinc-200">{exam.format}</div>
-                                  </div>
-                                </div>
-                                <p className="text-xs text-zinc-500 leading-relaxed">{exam.eligibility}</p>
-                                {exam.website && (
-                                  <a href={exam.website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-bold no-underline hover:underline" style={{ color }}>
-                                    Register now <ExternalLink size={10} />
-                                  </a>
-                                )}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+            {sheetUni.recruiters.length > 0 && (
+              <div className="mb-5">
+                <div className="text-[9px] text-zinc-600 uppercase tracking-wider mb-2">Recruiters</div>
+                <div className="flex flex-wrap gap-1">{sheetUni.recruiters.map(r => <span key={r} className="text-[10px] px-2.5 py-1 rounded-full bg-zinc-900 text-[var(--muted-foreground)]">{r}</span>)}</div>
+              </div>
+            )}
 
-              {/* Universities */}
-              {unis.length > 0 && (
-                <div className="mb-12">
-                  <div className="flex items-center gap-3 mb-5">
-                    <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: `${color}15` }}>
-                      <Award size={16} style={{ color }} />
-                    </div>
-                    <h3 className="text-lg font-bold">Universities</h3>
-                    <span className="text-xs text-zinc-600 bg-zinc-800/50 px-2.5 py-1 rounded-full">{unis.length}</span>
-                  </div>
+            {sheetUni.scholarships.length > 0 && (
+              <div className="mb-6 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+                <div className="text-[9px] text-zinc-600 uppercase tracking-wider mb-2">Scholarships</div>
+                <ul className="space-y-1.5">{sheetUni.scholarships.map(s => <li key={s} className="text-[11px] text-[var(--foreground)] flex gap-2"><span className="text-emerald-400">•</span>{s}</li>)}</ul>
+              </div>
+            )}
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {unis.map((uni, i) => (
-                      <motion.button
-                        key={uni.slug}
-                        initial={{ opacity: 0, y: 15 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.04 }}
-                        whileHover={{ y: -4 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => setSelectedUni(uni)}
-                        className="p-5 rounded-2xl bg-zinc-900/50 border border-zinc-800/50 hover:border-zinc-700 cursor-pointer text-left group transition-all"
-                      >
-                        <div className="flex items-start justify-between mb-3">
-                          <div>
-                            <h4 className="text-sm font-bold text-white mb-1">{uni.name}</h4>
-                            <div className="flex items-center gap-1.5 text-xs text-zinc-500">
-                              <MapPin size={11} /> {uni.location}
-                            </div>
-                          </div>
-                          <ArrowRight size={14} className="text-zinc-700 group-hover:text-zinc-400 group-hover:translate-x-1 transition-all mt-0.5" />
-                        </div>
-                        <div className="flex flex-wrap gap-1.5">
-                          <span className="text-[10px] px-2.5 py-1 rounded-full font-bold" style={{ background: `${color}12`, color }}>{uni.feesInr}</span>
-                          <span className="text-[10px] px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 font-bold">{uni.salary}</span>
-                          <span className="text-[10px] px-2.5 py-1 rounded-full bg-zinc-800 text-zinc-400">{uni.ranking}</span>
-                        </div>
-                      </motion.button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Action Plan CTA */}
-              <Link
-                href={`/${career.slug}/action-plan`}
-                className="group flex items-center gap-5 p-6 md:p-8 rounded-3xl no-underline transition-all hover:shadow-lg bg-zinc-900/50 border border-zinc-800/50 hover:border-zinc-700"
-              >
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: `${color}12` }}>
-                  <Rocket size={24} style={{ color }} />
-                </div>
-                <div className="flex-1">
-                  <div className="text-lg font-bold text-white mb-0.5">Your Action Plan</div>
-                  <div className="text-sm text-zinc-500">Month-by-month roadmap from Class 9 to 12</div>
-                </div>
-                <ArrowRight size={20} style={{ color }} className="group-hover:translate-x-2 transition-transform" />
+            <div className="flex gap-2">
+              <Link href={`/${sheetCareer}/${sheetCountry}/${sheetUni.slug}`} className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold no-underline text-[var(--foreground)]" style={{ background: COLORS[sheetCareer] }}>
+                Full Profile <ArrowRight size={14} />
               </Link>
+              {sheetUni.website && (
+                <a href={sheetUni.website} target="_blank" rel="noopener noreferrer" className="w-12 rounded-xl border border-zinc-800 flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors no-underline">
+                  <Globe size={16} />
+                </a>
+              )}
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Bottom navigation */}
-      {phase === "careers" && (
-        <div className="fixed bottom-8 left-8 right-20 flex justify-between items-center z-20">
-          <button onClick={prev} className="flex items-center gap-2 text-sm text-zinc-600 hover:text-white cursor-pointer transition-colors">
-            <ChevronLeft size={16} /> Previous
-          </button>
-          <div className="text-[10px] text-zinc-700 font-mono">
-            Use arrow keys or swipe
           </div>
-          <button onClick={next} className="flex items-center gap-2 text-sm text-zinc-600 hover:text-white cursor-pointer transition-colors">
-            Next <ChevronRight size={16} />
-          </button>
-        </div>
-      )}
-
-      {/* Side Sheet */}
-      <SideSheet open={!!selectedUni} onClose={() => setSelectedUni(null)}>
-        {selectedUni && career && selectedCountry && (
-          <UniProfile uni={selectedUni} careerSlug={career.slug} countrySlug={selectedCountry} color={color} />
         )}
-      </SideSheet>
-    </div>
+      </Sheet>
+    </>
   );
 }
