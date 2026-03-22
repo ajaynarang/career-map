@@ -62,7 +62,7 @@ function Bubble({ size, color, onClick, children, delay = 0, pulse, active }: {
 function Tooltip({ children }: { children: React.ReactNode }) {
   return (
     <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 z-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-      <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl px-4 py-3 shadow-2xl min-w-[200px] max-w-[300px]">
+      <div className="bg-[var(--background)] border border-[var(--border)] rounded-xl px-4 py-3 shadow-2xl min-w-[200px] max-w-[300px]" style={{ backdropFilter: "none" }}>
         {children}
       </div>
     </div>
@@ -85,34 +85,7 @@ function Line({ x1, y1, x2, y2, color }: { x1: number; y1: number; x2: number; y
   );
 }
 
-// ─── Sheet ───
-
-function Sheet({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
-  useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-      const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-      window.addEventListener("keydown", h);
-      return () => { document.body.style.overflow = ""; window.removeEventListener("keydown", h); };
-    }
-  }, [open, onClose]);
-
-  return (
-    <AnimatePresence>
-      {open && (
-        <>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-black/60 backdrop-blur-xl z-50" />
-          <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", damping: 30, stiffness: 250 }} className="fixed right-0 top-0 bottom-0 w-[min(540px,94vw)] bg-[var(--background)] border-l border-[var(--border)] overflow-y-auto z-50">
-            <button onClick={onClose} className="sticky top-0 right-0 z-10 float-right m-4 w-9 h-9 flex items-center justify-center rounded-full bg-[var(--muted)] border border-[var(--border)] hover:bg-[var(--border)] cursor-pointer hover:rotate-90 transition-all duration-300">
-              <X size={14} className="text-[var(--muted-foreground)]" />
-            </button>
-            <div className="p-7 pt-3 clear-both">{children}</div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
-  );
-}
+// Sheet removed — using inline detail card instead
 
 // ─── Theme toggle ───
 
@@ -361,7 +334,7 @@ export function Journey({ careers, getCountries, getExams, getUnis }: JourneyPro
               {activeCountry && unis.map((u, i) => (
                 <motion.div key={`uni-${u.slug}`} className="absolute group" style={{ left: uniPos[i].x, top: uniPos[i].y, transform: "translate(-50%, -50%)" }} exit={{ scale: 0, opacity: 0 }}>
                   <Bubble size={SZ_UNI} color={color} delay={i * 0.03}
-                    onClick={() => setSheetData({ uni: u, career: activeCareer!, country: activeCountry! })}>
+                    onClick={() => setSheetData(sheetData?.uni.slug === u.slug ? null : { uni: u, career: activeCareer!, country: activeCountry! })}>
                     <span className="text-[6px] font-bold text-white drop-shadow-lg text-center px-0.5 leading-tight">{shortName(u.name)}</span>
                   </Bubble>
                   <Tooltip>
@@ -395,96 +368,84 @@ export function Journey({ careers, getCountries, getExams, getUnis }: JourneyPro
         </motion.div>
       </div>
 
-      {/* University Detail Sheet */}
-      <Sheet open={!!sheetData} onClose={() => setSheetData(null)}>
+      {/* Inline Detail Card — fixed bottom panel */}
+      <AnimatePresence>
         {sheetData && (() => {
           const { uni, career, country } = sheetData;
           const c = COLORS[career];
-          const countryExams = getExams(career, country);
           return (
-            <div>
-              {/* Header */}
-              <div className="rounded-2xl p-6 mb-6 relative overflow-hidden" style={{ background: `linear-gradient(160deg, ${c}12 0%, transparent 100%)`, border: `1px solid ${c}12` }}>
-                <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-[60px] opacity-15" style={{ background: c }} />
-                <div className="relative">
-                  <div className="text-[9px] font-mono uppercase tracking-[4px] mb-2" style={{ color: c }}>{uni.ranking}</div>
-                  <h2 className="text-2xl font-bold text-[var(--foreground)] mb-1">{uni.name}</h2>
-                  <div className="flex items-center gap-1.5 text-sm text-[var(--muted-foreground)]"><MapPin size={13} /> {uni.location}</div>
-                </div>
-              </div>
+            <motion.div
+              key={uni.slug}
+              initial={{ y: "100%", opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: "100%", opacity: 0 }}
+              transition={{ type: "spring", damping: 28, stiffness: 250 }}
+              className="fixed bottom-0 left-0 right-0 z-40 p-4 pt-0"
+            >
+              <div className="max-w-2xl mx-auto bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.15)] overflow-hidden">
+                {/* Close */}
+                <button onClick={() => setSheetData(null)} className="absolute top-3 right-3 w-7 h-7 rounded-full bg-[var(--muted)] flex items-center justify-center cursor-pointer hover:bg-[var(--border)] transition-colors z-10">
+                  <X size={12} className="text-[var(--muted-foreground)]" />
+                </button>
 
-              {/* Key numbers */}
-              <div className="grid grid-cols-3 gap-2 mb-6">
-                {[
-                  { icon: Zap, label: "Cost/yr", value: uni.feesInr, accent: c },
-                  { icon: Award, label: "Salary", value: uni.salary, accent: "#10B981" },
-                  { icon: Star, label: "Acceptance", value: uni.acceptance, accent: "#F59E0B" },
-                ].map(s => (
-                  <div key={s.label} className="p-3.5 rounded-xl bg-[var(--muted)] text-center">
-                    <s.icon size={15} style={{ color: s.accent }} className="mx-auto mb-1.5" />
-                    <div className="text-xs font-bold text-[var(--foreground)] mb-0.5">{s.value}</div>
-                    <div className="text-[8px] text-[var(--muted-foreground)] uppercase tracking-wider">{s.label}</div>
+                {/* Header row */}
+                <div className="p-4 pb-3">
+                  <div className="text-[9px] font-mono uppercase tracking-[3px] mb-1" style={{ color: c }}>{uni.ranking}</div>
+                  <h3 className="text-base font-bold text-[var(--foreground)] mb-0.5 pr-8">{uni.name}</h3>
+                  <div className="text-[11px] text-[var(--muted-foreground)] flex items-center gap-1"><MapPin size={10} />{uni.location}</div>
+                </div>
+
+                {/* Key numbers */}
+                <div className="grid grid-cols-3 gap-px bg-[var(--border)]">
+                  {[
+                    { label: "Cost/yr", value: uni.feesInr, accent: c },
+                    { label: "Salary", value: uni.salary.substring(0, 25), accent: "#10B981" },
+                    { label: "Acceptance", value: uni.acceptance.substring(0, 20), accent: "#F59E0B" },
+                  ].map(s => (
+                    <div key={s.label} className="bg-[var(--card)] p-3 text-center">
+                      <div className="text-[11px] font-bold" style={{ color: s.accent }}>{s.value}</div>
+                      <div className="text-[8px] text-[var(--muted-foreground)] uppercase tracking-wider mt-0.5">{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Programs (compact) */}
+                {uni.programs.length > 0 && (
+                  <div className="px-4 pt-3 pb-1">
+                    <div className="flex flex-wrap gap-1">
+                      {uni.programs.slice(0, 5).map(p => (
+                        <span key={p} className="text-[9px] px-2 py-0.5 rounded-full bg-[var(--muted)] text-[var(--muted-foreground)]">{p}</span>
+                      ))}
+                      {uni.programs.length > 5 && <span className="text-[9px] px-2 py-0.5 text-[var(--muted-foreground)]">+{uni.programs.length - 5}</span>}
+                    </div>
                   </div>
-                ))}
-              </div>
-
-              {/* Programs */}
-              {uni.programs.length > 0 && (
-                <div className="mb-5">
-                  <div className="flex items-center gap-2 mb-2"><BookOpen size={13} style={{ color: c }} /><span className="text-[10px] font-bold text-[var(--foreground)] uppercase tracking-wider">Programs</span></div>
-                  <div className="flex flex-wrap gap-1.5">{uni.programs.map(p => <span key={p} className="text-[10px] px-2.5 py-1 rounded-full border border-[var(--border)] text-[var(--foreground)]">{p}</span>)}</div>
-                </div>
-              )}
-
-              {/* Recruiters */}
-              {uni.recruiters.length > 0 && (
-                <div className="mb-5">
-                  <div className="flex items-center gap-2 mb-2"><Users size={13} style={{ color: c }} /><span className="text-[10px] font-bold text-[var(--foreground)] uppercase tracking-wider">Who hires from here</span></div>
-                  <div className="flex flex-wrap gap-1.5">{uni.recruiters.map(r => <span key={r} className="text-[10px] px-2.5 py-1 rounded-full bg-[var(--muted)] text-[var(--muted-foreground)]">{r}</span>)}</div>
-                </div>
-              )}
-
-              {/* Scholarships */}
-              {uni.scholarships.length > 0 && (
-                <div className="mb-5 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-                  <div className="flex items-center gap-2 mb-2"><Star size={13} className="text-emerald-500" /><span className="text-[10px] font-bold text-[var(--foreground)] uppercase tracking-wider">Scholarships & Aid</span></div>
-                  <ul className="space-y-1.5">{uni.scholarships.map(s => <li key={s} className="text-[11px] text-[var(--foreground)] flex gap-2"><span className="text-emerald-500">•</span>{s}</li>)}</ul>
-                </div>
-              )}
-
-              {/* Exams for this country */}
-              {countryExams.length > 0 && (
-                <div className="mb-6">
-                  <div className="flex items-center gap-2 mb-2"><GraduationCap size={13} className="text-amber-500" /><span className="text-[10px] font-bold text-[var(--foreground)] uppercase tracking-wider">Exams needed</span></div>
-                  <div className="space-y-1.5">
-                    {countryExams.map(e => (
-                      <div key={e.slug} className="flex items-center justify-between p-3 rounded-xl bg-[var(--muted)]">
-                        <div>
-                          <div className="text-[11px] font-bold text-[var(--foreground)]">{e.name}</div>
-                          <div className="text-[9px] text-[var(--muted-foreground)]">{e.when.substring(0, 40)}</div>
-                        </div>
-                        {e.website && <a href={e.website} target="_blank" rel="noopener noreferrer" className="text-amber-500 no-underline"><ExternalLink size={13} /></a>}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="flex gap-2">
-                <Link href={`/${career}/${country}/${uni.slug}`} className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold no-underline text-white" style={{ background: c }}>
-                  Full Profile <ArrowRight size={14} />
-                </Link>
-                {uni.website && (
-                  <a href={uni.website} target="_blank" rel="noopener noreferrer" className="w-12 rounded-xl border border-[var(--border)] flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors no-underline">
-                    <Globe size={16} />
-                  </a>
                 )}
+
+                {/* Top recruiters (one line) */}
+                {uni.recruiters.length > 0 && (
+                  <div className="px-4 py-2">
+                    <div className="text-[9px] text-[var(--muted-foreground)] truncate">
+                      <span className="font-bold">Hires: </span>{uni.recruiters.slice(0, 6).join(", ")}
+                    </div>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="flex gap-2 p-4 pt-2">
+                  <Link href={`/${career}/${country}/${uni.slug}`} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold no-underline text-white" style={{ background: c }}>
+                    Read more <ArrowRight size={12} />
+                  </Link>
+                  {uni.website && (
+                    <a href={uni.website} target="_blank" rel="noopener noreferrer" className="w-10 rounded-xl border border-[var(--border)] flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors no-underline">
+                      <Globe size={14} />
+                    </a>
+                  )}
+                </div>
               </div>
-            </div>
+            </motion.div>
           );
         })()}
-      </Sheet>
+      </AnimatePresence>
     </>
   );
 }
