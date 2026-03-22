@@ -23,7 +23,9 @@ export default function Home() {
   const unisByCareerCountry: Record<string, { slug: string; name: string; location: string; ranking: string; feesInr: string; salary: string; acceptance: string; programs: string[]; recruiters: string[]; scholarships: string[]; website: string; applyLink: string }[]> = {};
 
   for (const careerSlug of getAllCareerSlugs()) {
-    const countrySlugs = getCountrySlugs(careerSlug);
+    const careerMeta = getAllCareerMetas().find(c => c.data.slug === careerSlug);
+    const allowedCountries = careerMeta?.data.countries || [];
+    const countrySlugs = getCountrySlugs(careerSlug).filter(s => allowedCountries.includes(s));
     countriesByCareer[careerSlug] = countrySlugs
       .map((slug) => {
         const data = getCountryOverview(careerSlug, slug);
