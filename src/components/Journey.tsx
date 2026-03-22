@@ -33,7 +33,7 @@ const EMOJIS: Record<string, string> = {
 };
 
 const CAREER_META: Record<string, { fit: string; salaryIndia: string; salaryAbroad: string; prepCost: string }> = {
-  engineering: { fit: "Problem solver, builder, tech lover", salaryIndia: "₹6-55 LPA", salaryAbroad: "$80-150K", prepCost: "₹1-3L/yr coaching" },
+  engineering: { fit: "Problem solver, builder, tech lover (incl. Space/Aerospace)", salaryIndia: "₹6-55 LPA", salaryAbroad: "$80-150K", prepCost: "₹1-3L/yr coaching" },
   science: { fit: "Deeply curious, loves experiments", salaryIndia: "₹5-40 LPA", salaryAbroad: "$60-130K", prepCost: "₹50K-2L/yr" },
   finance: { fit: "Sharp with numbers, strategic thinker", salaryIndia: "₹8-80 LPA", salaryAbroad: "$100-200K", prepCost: "₹30K-1.5L/yr" },
   architecture: { fit: "Creative + technical, visual thinker", salaryIndia: "₹5-20 LPA", salaryAbroad: "$60-110K", prepCost: "₹50K-1L/yr" },
@@ -232,7 +232,16 @@ export function Journey({ careers, getCountries, getExams, getUnis, actionPlans 
                 </div>
               </div>
 
-              <p className="text-center text-[10px] text-[var(--muted-foreground)] mt-8 opacity-40">
+              {/* Not sure? */}
+              <div className="mt-8 p-4 rounded-2xl bg-[var(--muted)] text-center">
+                <p className="text-sm font-bold text-[var(--foreground)] mb-1">Not sure which path?</p>
+                <p className="text-[11px] text-[var(--muted-foreground)] mb-3">Most PCM students start with Engineering — it keeps the most doors open. You can always explore other paths later.</p>
+                <button onClick={() => { setSelectedCareer("engineering"); setStep("country"); }} className="text-xs font-bold cursor-pointer px-4 py-2 rounded-xl text-white" style={{ background: COLORS.engineering }}>
+                  Start with Engineering →
+                </button>
+              </div>
+
+              <p className="text-center text-[10px] text-[var(--muted-foreground)] mt-6 opacity-40">
                 Every path here leads to a great career. There are no wrong choices.
               </p>
             </motion.div>
